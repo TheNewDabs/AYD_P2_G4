@@ -146,3 +146,184 @@
 
 1. **Como** cuidador, **quiero** poder seleccionar mascotas para cuidar, **para** gestionar mi carga de trabajo y brindar atención adecuada.
 2. **Como** cuidador, **quiero** ver y actualizar el estado de las mascotas que estoy cuidando, **para** informar a los dueños sobre las actividades y el bienestar de sus mascotas.
+
+
+## Desarrollo
+### Backend y Base de Datos
+Herramientas
+- Node js
+- MySql
+
+#### Base de datos
+
+**Modelo Lógico**
+1. Usuarios
+
+    ID_Usuario (clave primaria)
+    Nombre
+    Apellido
+    Telefono
+    Email
+    Contraseña
+    Fecha_Nacimiento
+    Rol (Cliente o Cuidador)
+
+2. Mascotas
+
+    ID_Mascota (clave primaria)
+    Nombre
+    Edad
+    Especie
+    Raza
+    Comportamiento
+    Contacto_Veterinario
+    Comentarios_Extra
+    ID_Usuario (clave foránea de Usuarios)
+
+3. Hospedajes
+
+    ID_Hospedaje (clave primaria)
+    ID_Mascota (clave foránea de Mascotas)
+    Fecha_Inicio
+    Fecha_Fin
+    Estado
+    ID_Cuidador (clave foránea de Usuarios, referenciando a cuidadores)
+
+4. Reseñas
+
+    ID_Reseña (clave primaria)
+    ID_Usuario (clave foránea de Usuarios)
+    Comentario
+    Calificación
+    Fecha
+
+5. Perfil del Cuidador (Opcional, dependiendo de los requisitos específicos)
+
+    ID_Usuario (clave primaria y foránea de Usuarios)
+    Experiencia
+    Calificaciones
+
+Relaciones
+
+    Usuarios - Mascotas:
+        Uno a muchos (un usuario puede tener varias mascotas).
+    Usuarios - Reseñas:
+        Uno a muchos (un usuario puede escribir varias reseñas).
+    Mascotas - Hospedajes:
+        Uno a muchos (una mascota puede tener varios hospedajes).
+    Cuidadores (Usuarios) - Hospedajes:
+        Uno a muchos (un cuidador puede tener asignados varios hospedajes).
+
+**Modelo Físico**
+Tabla: Usuarios
+
+    ID_Usuario INT AUTO_INCREMENT PRIMARY KEY
+    Nombre VARCHAR(50)
+    Apellido VARCHAR(50)
+    Telefono VARCHAR(15)
+    Email VARCHAR(100) UNIQUE
+    Contraseña VARCHAR(255)
+    Fecha_Nacimiento DATE
+    Rol ENUM('Cliente', 'Cuidador')
+
+Tabla: Mascotas
+
+    ID_Mascota INT AUTO_INCREMENT PRIMARY KEY
+    Nombre VARCHAR(50)
+    Edad INT
+    Especie VARCHAR(50)
+    Raza VARCHAR(50)
+    Comportamiento TEXT
+    Contacto_Veterinario VARCHAR(100)
+    Comentarios_Extra TEXT
+    ID_Usuario INT, FOREIGN KEY (ID_Usuario) REFERENCES Usuarios(ID_Usuario)
+
+Tabla: Hospedajes
+
+    ID_Hospedaje INT AUTO_INCREMENT PRIMARY KEY
+    ID_Mascota INT, FOREIGN KEY (ID_Mascota) REFERENCES Mascotas(ID_Mascota)
+    Fecha_Inicio DATE
+    Fecha_Fin DATE
+    Estado ENUM('Comiendo', 'Paseando', 'Bañado', 'Tomando la siesta', 'Jugando')
+    ID_Cuidador INT, FOREIGN KEY (ID_Cuidador) REFERENCES Usuarios(ID_Usuario)
+
+Tabla: Reseñas
+
+    ID_Reseña INT AUTO_INCREMENT PRIMARY KEY
+    ID_Usuario INT, FOREIGN KEY (ID_Usuario) REFERENCES Usuarios(ID_Usuario)
+    Comentario TEXT
+    Calificación INT
+    Fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+Tabla: Perfil del Cuidador (si es necesario)
+
+    ID_Usuario INT PRIMARY KEY, FOREIGN KEY (ID_Usuario) REFERENCES Usuarios(ID_Usuario)
+    Experiencia TEXT
+    Calificaciones DECIMAL(3,2)
+
+**Script SQL para la Creación de la Base de Datos**
+```sql
+-- Crear la base de datos
+CREATE DATABASE IF NOT EXISTS huellita_feliz;
+USE huellita_feliz;
+
+-- Crear tabla de Usuarios
+CREATE TABLE IF NOT EXISTS Usuarios (
+    ID_Usuario INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(50),
+    Apellido VARCHAR(50),
+    Telefono VARCHAR(15),
+    Email VARCHAR(100) UNIQUE,
+    Contraseña VARCHAR(255),
+    Fecha_Nacimiento DATE,
+    Rol ENUM('Cliente', 'Cuidador')
+);
+
+-- Crear tabla de Mascotas
+CREATE TABLE IF NOT EXISTS Mascotas (
+    ID_Mascota INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(50),
+    Edad INT,
+    Especie VARCHAR(50),
+    Raza VARCHAR(50),
+    Comportamiento TEXT,
+    Contacto_Veterinario VARCHAR(100),
+    Comentarios_Extra TEXT,
+    ID_Usuario INT,
+    FOREIGN KEY (ID_Usuario) REFERENCES Usuarios(ID_Usuario)
+);
+
+-- Crear tabla de Hospedajes
+CREATE TABLE IF NOT EXISTS Hospedajes (
+    ID_Hospedaje INT AUTO_INCREMENT PRIMARY KEY,
+    ID_Mascota INT,
+    Fecha_Inicio DATE,
+    Fecha_Fin DATE,
+    Estado ENUM('Comiendo', 'Paseando', 'Bañado', 'Tomando la siesta', 'Jugando'),
+    ID_Cuidador INT,
+    FOREIGN KEY (ID_Mascota) REFERENCES Mascotas(ID_Mascota),
+    FOREIGN KEY (ID_Cuidador) REFERENCES Usuarios(ID_Usuario)
+);
+
+-- Crear tabla de Reseñas
+CREATE TABLE IF NOT EXISTS Reseñas (
+    ID_Reseña INT AUTO_INCREMENT PRIMARY KEY,
+    ID_Usuario INT,
+    Comentario TEXT,
+    Calificación INT,
+    Fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ID_Usuario) REFERENCES Usuarios(ID_Usuario)
+);
+
+-- Crear tabla de Perfil del Cuidador (opcional)
+CREATE TABLE IF NOT EXISTS Perfil_Cuidador (
+    ID_Usuario INT PRIMARY KEY,
+    Experiencia TEXT,
+    Calificaciones DECIMAL(3,2),
+    FOREIGN KEY (ID_Usuario) REFERENCES Usuarios(ID_Usuario)
+);
+```
+
+**Diagrama Entidad Relacion**
+Insertar imagen
+![](HuellitaFeliz.png)
