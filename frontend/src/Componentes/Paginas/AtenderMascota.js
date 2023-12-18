@@ -21,14 +21,13 @@ export const AtenderMascota = () => {
     <>
       <div className="container mt-5 ">
         <h1>Atender mascotas</h1>
-        <hr></hr>
+        
         {mascotas.map((animal) => (
             <CardAtender
               key={animal.id}
-
               imagen ={animal.image}
-              titulo={animal.title}
-              descripcion={animal.descripcion}
+              titulo={animal.category}
+              descripcion={animal.description}
               precio={animal.price}
             ></CardAtender>
           ))}
@@ -36,5 +35,3 @@ export const AtenderMascota = () => {
     </>
   );
 };
-
-//.filter((animal) => animal.Estado === "Hos")

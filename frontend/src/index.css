@@ -6,7 +6,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   padding: 1% 2%;
+  
 }
+/*background-color: rgb(92, 92, 92);*/
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
