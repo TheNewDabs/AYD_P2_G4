@@ -3,29 +3,39 @@ import React from "react";
 export const CardPerfil = () => {
   return (
     <>
-      <div className="card" style="width: 18rem;">
-        <img src="..." className="card-img-top" alt="imagenMascota" />
-        <div className="card-body">
-          <h5 className="card-title">Card title</h5>
-          <p className="card-text">
-            Some quick example text to build on the card title and make up the
-            bulk of the card's content.
-          </p>
+      <form className="row g-3">
+        <div className="col-auto">
+          <label for="staticEmail2" className="visually-hidden">
+            Email
+          </label>
+          <input
+            type="text"
+            readonly
+            className="form-control-plaintext"
+            id="staticEmail2"
+            value="email@example.com"
+          />
         </div>
-        <ul className="list-group list-group-flush">
-          <li className="list-group-item">An item</li>
-          <li className="list-group-item">A second item</li>
-          <li className="list-group-item">A third item</li>
-        </ul>
-        <div className="card-body">
-          <a href="#" className="card-link">
-            Card link
-          </a>
-          <a href="#" className="card-link">
-            Another link
-          </a>
+        <div className="col-auto">
+          <label for="inputPassword2" className="visually-hidden">
+            Password
+          </label>
+          <input
+            type="password"
+            className="form-control"
+            id="inputPassword2"
+            placeholder="Password"
+          />
         </div>
-      </div>
+        <div className="col-auto">
+          <button type="button" className="btn btn-outline-dark">
+            siesta
+          </button>
+          <button type="submit" className="btn btn-primary mb-3">
+            Confirm identity
+          </button>
+        </div>
+      </form>
     </>
   );
 };
