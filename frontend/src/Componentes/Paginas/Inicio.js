@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -48,45 +48,109 @@ const SubmitButton = styled.button`
   cursor: pointer;
 `;
 
-export const Inicio = () => {
+export const Inicio = ({ user, setUser }) => {
+  const [editUser, setEditUser] = useState(user);
+  const [NuevaContraseña, setNuevaContraseña] = useState('');
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditUser((prevEditUser) => ({ ...prevEditUser, [name]: value }));
+  };
+
+  const handleInputChangeNuevaContraseña = (e) => {
+    const { value } = e.target;
+    setNuevaContraseña(value);
+  }
+
+  const Editar = () => {
+    var NContraseña = NuevaContraseña
+    if (NuevaContraseña === '') {
+      NContraseña = editUser.Contraseña
+    }
+    fetch(`http://localhost:3000/usuarios/editar/${user.ID_Usuario}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre: editUser.Nombre,
+        apellido: editUser.Apellido,
+        telefono: editUser.Telefono,
+        email: editUser.Email,
+        contraseña: editUser.Contraseña,
+        nuevaContraseña: NContraseña,
+        fechaNacimiento: editUser.Fecha_Nacimiento,
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          setUser({
+            'ID_Usuario': editUser.ID_Usuario,
+            'Nombre': editUser.Nombre,
+            'Apellido': editUser.Apellido,
+            'Telefono': editUser.Telefono,
+            'Email': editUser.Email,
+            'Contraseña': "",
+            'Fecha_Nacimiento': editUser.Fecha_Nacimiento,
+            'Rol': editUser.Rol
+          });
+          localStorage.setItem('Huellita_Feliz_session', JSON.stringify({
+            'ID_Usuario': editUser.ID_Usuario,
+            'Nombre': editUser.Nombre,
+            'Apellido': editUser.Apellido,
+            'Telefono': editUser.Telefono,
+            'Email': editUser.Email,
+            'Contraseña': "",
+            'Fecha_Nacimiento': editUser.Fecha_Nacimiento,
+            'Rol': editUser.Rol
+          }));
+          setNuevaContraseña('');
+        }
+        alert(data.message);
+      })
+      .catch((error) => {
+        alert('Error:', error);
+      });
+  };
+
+  useEffect(() => {
+    setEditUser(user);
+  }, [user]);
+
   return (
     <Container>
       <FormContainer>
         <Form>
           <FormGroup>
             <label>Nombre:</label>
-            <input type="text" />
+            <input type="text" name="Nombre" value={editUser.Nombre} onChange={handleInputChange} />
           </FormGroup>
           <FormGroup>
             <label>Apellido:</label>
-            <input type="text" />
+            <input type="text" name="Apellido" value={editUser.Apellido} onChange={handleInputChange} />
           </FormGroup>
           <FormGroup>
             <label>Número de Teléfono:</label>
-            <input type="text" />
+            <input type="text" name="Telefono" value={editUser.Telefono} onChange={handleInputChange} />
           </FormGroup>
           <FormGroup>
             <label>Correo Electrónico:</label>
-            <input type="email" />
+            <input type="email" name="Email" value={editUser.Email} disabled/>
           </FormGroup>
           <FormGroup>
             <label>Contraseña:</label>
-            <input type="password" />
+            <input type="password" name="Contraseña" value={editUser.Contraseña} onChange={handleInputChange} />
+          </FormGroup>
+          <FormGroup>
+            <label>Nueva Contraseña:</label>
+            <input type="password" name="NuevaContraseña" value={NuevaContraseña} onChange={handleInputChangeNuevaContraseña} />
           </FormGroup>
           <FormGroup>
             <label>Fecha de Nacimiento:</label>
-            <input type="date" />
+            <input type="date" name="Fecha_Nacimiento" value={editUser.Fecha_Nacimiento ? editUser.Fecha_Nacimiento.slice(0, 10) : ''} onChange={handleInputChange} />
           </FormGroup>
-          <FormGroup>
-            <label>Rol:</label>
-            <select>
-              <option value="cliente">Cliente</option>
-              <option value="trabajador">Trabajador</option>
-            </select>
-          </FormGroup>
-          <SubmitButton>Registrarse</SubmitButton>
+          <SubmitButton type="button" onClick={Editar}>Editar información</SubmitButton>
         </Form>
       </FormContainer>
     </Container>
-  )
-}
+  );
+};

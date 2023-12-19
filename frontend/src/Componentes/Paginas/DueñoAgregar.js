@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -48,7 +48,10 @@ const SubmitButton = styled.button`
   cursor: pointer;
 `;
 
-export const DueñoAgregar = () => {
+export const DueñoAgregar = ({user}) => {
+
+  
+
   return (
     <Container>
       <FormContainer>

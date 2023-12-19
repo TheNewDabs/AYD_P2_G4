@@ -162,126 +162,193 @@ app.post("/usuarios/register", (req, res) => {
     });
 });
 
-app.post("/usuarios/validar", (req, res) => {
-  const parametro = req.body;
-
-  const query = "SELECT * FROM Validador WHERE Email = ? AND Token = ?";
-  db.query(query, [parametro.email, parametro.token], (err, result) => {
+/** Login del usuario */
+app.post("/usuarios/login", (req, res) => {
+  const correo = req.body.correoElectronico;
+  const contrasenia = req.body.contrasenia;
+  const token = contrasenia;
+  // Validar que dicho correo no esté en el registro de validador
+  const queryValidador = "SELECT * FROM Validador WHERE Email = ?";
+  db.query(queryValidador, [correo], (err, result) => {
     if (err) {
       console.error("Error al obtener el usuario:", err);
       return res.status(500).json({
         success: false,
         mensaje: "Ha ocurrido un error al obtener el usuario",
-        error: err.message  // Devuelve el mensaje de error para diagnóstico.
+        error: err.message,
       });
-    }
+    } else {
+      if (result.length > 0) {
+        // El correo existe en la tabla Validador, verificar el token
+        const query = "SELECT * FROM Validador WHERE Email = ? AND Token = ?";
+        db.query(query, [correo, token], (err, result) => {
+          if (err) {
+            console.error("Error al obtener el usuario:", err);
+            return res.status(500).json({
+              success: false,
+              mensaje: "Ha ocurrido un error al obtener el usuario",
+              error: err.message,
+            });
+          }
 
-    if (result.length <= 0) {
-      return res.status(401).json({
-        success: false,
-        mensaje: "Token incorrecto",
-      });
-    }
-
-    const queryDelete = "DELETE FROM Validador WHERE Email = ?";
-    db.query(queryDelete, [parametro.email], (err, result) => {
-      if (err) {
-        console.error("Error al eliminar el registro de la tabla Validador:", err);
-        return res.status(500).json({
-          success: false,
-          mensaje: "No se pudo eliminar el registro de la tabla Validador",
-          error: err.message
-        });
-      }
-
-      console.log("Registro de Validador eliminado correctamente");
-      return res.json({
-        success: true,
-        mensaje: "Usuario validado correctamente",
-        id_insertado: result.insertId,
-      });
-    });
-  });
-});
-
-/** Login del usuario */
-app.post("/usuarios/login", (req, res) => {
-  // Se recibe los parámetros
-  const correo = req.body.correoElectronico;
-  const contrasenia = req.body.contrasenia;
-
-  // Validar que dicho correo no esté en el registro de validador
-  const queryValidador = "SELECT * FROM Validador WHERE Email = ?";
-  const validadorPromise = new Promise((resolve, reject) => {
-    db.query(queryValidador, [correo], (err, result) => {
-      if (err) {
-        console.error("Error al obtener el usuario:", err);
-        reject("Ha ocurrido un error al obtener el usuario");
-      } else {
-        if (result.length > 0) {
-          reject("Usuario no validado");
-        } else {
-          // Realizar la segunda consulta aquí
-          const query =
-            "SELECT ID_Usuario, Contraseña, Rol, nombre FROM Usuarios WHERE Email = ?";
-          db.query(query, [correo], (err, result) => {
-            if (err) {
-              return res.json({
-                success: false,
-                mensaje: "Ha ocurrido un error al obtener el usuario",
-              });
-            } else {
-              if (result.length <= 0) {
+          if (result.length > 0) {
+            // Token correcto, obtener datos del usuario y eliminar el registro de la tabla Validador
+            const queryUsuario =
+              "SELECT ID_Usuario, Contraseña, Rol, Nombre, Apellido, Telefono, Fecha_Nacimiento FROM Usuarios WHERE Email = ?";
+            db.query(queryUsuario, [correo], (err, resultUsuario) => {
+              if (err) {
                 return res.json({
                   success: false,
-                  mensaje: "Credenciales incorrectas",
+                  mensaje: "Ha ocurrido un error al obtener el usuario",
                 });
               } else {
-                util
-                  .comparePassword(contrasenia, result[0].Contraseña)
-                  .then((esCorrecta) => {
-                    if (esCorrecta) {
-                      return res.json({
-                        success: true,
-                        mensaje: "Bienvenido",
-                        extra: {
-                          id_usuario: result[0].UserID,
-                          rol: result[0].Rol,
-                          Nombre: result[0].nombre,
-                        },
-                      });
-                    } else {
-                      return res.json({
+                if (resultUsuario.length <= 0) {
+                  return res.json({
+                    success: false,
+                    mensaje: "Credenciales incorrectas",
+                  });
+                } else {
+                  // Eliminar registro de la tabla Validador
+                  const queryDelete =
+                    "DELETE FROM Validador WHERE Email = ?";
+                  db.query(queryDelete, [correo], (err, resultDelete) => {
+                    if (err) {
+                      console.error(
+                        "Error al eliminar el registro de la tabla Validador:",
+                        err
+                      );
+                      return res.status(500).json({
                         success: false,
-                        mensaje: "Credenciales incorrectas",
+                        mensaje:
+                          "No se pudo eliminar el registro de la tabla Validador",
+                        error: err.message,
                       });
                     }
-                  })
-                  .catch((error) => {
-                    console.error("Error al comparar contraseñas:", error);
+                    console.log(
+                      "Registro de Validador eliminado correctamente"
+                    );
+                    // Retornar respuesta sin validar la contraseña
                     return res.json({
-                      success: false,
-                      mensaje:
-                        "Ha ocurrido un error al desencriptar la contraseña",
+                      success: true,
+                      mensaje: "Bienvenido",
+                      usuario: {
+                        ID_Usuario: resultUsuario[0].ID_Usuario,
+                        Nombre: resultUsuario[0].Nombre,
+                        Apellido: resultUsuario[0].Apellido,
+                        Telefono: resultUsuario[0].Telefono,
+                        Email: correo,
+                        Fecha_Nacimiento: resultUsuario[0].Fecha_Nacimiento,
+                        Rol: resultUsuario[0].Rol,
+                        Contraseña: '',
+                      },
                     });
                   });
+                }
               }
+            });
+          } else {
+            // Token incorrecto
+            return res.status(401).json({
+              success: false,
+              mensaje: "Token incorrecto",
+            });
+          }
+        });
+      } else {
+        // El correo no existe en la tabla Validador, realizar el proceso normal para validar la contraseña
+        const query =
+          "SELECT ID_Usuario, Contraseña, Rol, Nombre, Apellido, Telefono, Fecha_Nacimiento FROM Usuarios WHERE Email = ?";
+        db.query(query, [correo], (err, result) => {
+          if (err) {
+            return res.json({
+              success: false,
+              mensaje: "Ha ocurrido un error al obtener el usuario",
+            });
+          } else {
+            if (result.length <= 0) {
+              return res.json({
+                success: false,
+                mensaje: "Credenciales incorrectas",
+              });
+            } else {
+              util
+                .comparePassword(contrasenia, result[0].Contraseña)
+                .then((esCorrecta) => {
+                  if (esCorrecta) {
+                    return res.json({
+                      success: true,
+                      mensaje: "Bienvenido",
+                      usuario: {
+                        ID_Usuario: result[0].ID_Usuario,
+                        Nombre: result[0].Nombre,
+                        Apellido: result[0].Apellido,
+                        Telefono: result[0].Telefono,
+                        Email: correo,
+                        Fecha_Nacimiento: result[0].Fecha_Nacimiento,
+                        Rol: result[0].Rol,
+                        Contraseña: '',
+                      },
+                    });
+                  } else {
+                    return res.json({
+                      success: false,
+                      mensaje: "Credenciales incorrectas",
+                    });
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error al comparar contraseñas:", error);
+                  return res.json({
+                    success: false,
+                    mensaje:
+                      "Ha ocurrido un error al desencriptar la contraseña",
+                  });
+                });
             }
-          });
-          // Resolver la promesa si no hay errores
-          resolve();
-        }
+          }
+        });
       }
-    });
-  });
-
-  validadorPromise.catch((mensaje) => {
-    // Se ha producido un error durante la consulta
-    console.log("Usuario no validado:", mensaje);
-    return res.json({ success: false, mensaje: mensaje });
+    }
   });
 });
 
+//Optener usuario por ID
+app.get("/usuarios/:userID", async (req, res) => {
+  try {
+    // Obtener el ID de usuario de los parámetros de la solicitud
+    const { userID } = req.params;
+
+    // Consultar los datos del usuario por ID (excepto la contraseña)
+    const [usuario] = await db
+      .promise()
+      .query("SELECT ID_Usuario, Nombre, Apellido, Telefono, Email, Fecha_Nacimiento, Rol FROM Usuarios WHERE ID_Usuario = ?", [userID]);
+
+    // Verificar si se encontró el usuario
+    if (usuario.length > 0) {
+      // Enviar los datos del usuario como respuesta
+      res.json({
+        success: true,
+        mensaje: "Datos del usuario obtenidos correctamente",
+        usuario: {
+          ID_Usuario: resultUsuario[0].ID_Usuario,
+          Nombre: resultUsuario[0].Nombre,
+          Apellido: resultUsuario[0].Apellido,
+          Telefono: resultUsuario[0].Telefono,
+          Email: correo,
+          Fecha_Nacimiento: resultUsuario[0].Fecha_Nacimiento,
+          Rol: resultUsuario[0].Rol,
+          Contraseña: '',
+        },
+      });
+    } else {
+      // Si no se encuentra el usuario, enviar un mensaje de error
+      res.status(404).json({ success: false, mensaje: "Usuario no encontrado" });
+    }
+  } catch (error) {
+    console.error("Error al obtener los datos del usuario:", error);
+    res.status(500).json({ success: false, mensaje: "Error interno del servidor" });
+  }
+});
 
 // Endpoint para obtener todos los usuarios (solo accesible para administradores)
 app.get("/usuarios", async (req, res) => {
@@ -329,6 +396,7 @@ app.put("/usuarios/editar/:userID", async (req, res) => {
       nuevaContraseña,
       fechaNacimiento,
     } = req.body;
+
     const { userID } = req.params;
 
     // Verificar la contraseña del usuario
@@ -341,7 +409,7 @@ app.put("/usuarios/editar/:userID", async (req, res) => {
     );
 
     if (!contraseñaCorrecta) {
-      return res.status(401).json({ error: "Contraseña incorrecta" });
+      return res.status(401).json({success: false, message: "Contraseña incorrecta" });
     }
 
     util
@@ -349,21 +417,24 @@ app.put("/usuarios/editar/:userID", async (req, res) => {
       .then((hashedPassword) => {
         const hashed = hashedPassword;
         db.promise().query(
-          "UPDATE Usuarios SET nombre = ?, apellido = ?, telefono = ?, email = ?, contraseña = ?, fechaNacimiento = ? WHERE ID_Usuario = ?",
-          [nombre, apellido, telefono, email, hashed, fechaNacimiento, userID]
+          "UPDATE Usuarios SET nombre = ?, apellido = ?, telefono = ?, email = ?, contraseña = ?, Fecha_Nacimiento = ? WHERE ID_Usuario = ?",
+          [nombre, apellido, telefono, email, hashed, (fechaNacimiento ? fechaNacimiento.slice(0, 10) : ''), userID]
         );
       })
       .catch((error) => {
         console.error("Error al encriptar contraseña:", error);
         res.json({
           success: false,
-          mensaje: "Ha ocurrido un error al encriptar la contraseña",
+          message: "Ha ocurrido un error al encriptar la contraseña",
         });
       });
     // Actualizar la información del usuario en la base de datos
 
     // Enviar respuesta de éxito
-    res.json({ message: "Usuario actualizado con éxito" });
+    res.json({ 
+      success: true,
+      message: "Usuario actualizado con éxito" 
+    });
   } catch (error) {
     console.error("Error al editar un usuario:", error);
     res.status(500).json({ error: "Error interno del servidor" });
