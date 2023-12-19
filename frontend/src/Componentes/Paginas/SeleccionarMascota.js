@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { TarjetaSeleccionMascota } from "../Tarjetas/TarjetaSeleccionMascota";
 
@@ -24,9 +24,32 @@ const Form = styled.form`
 `;
 
 export const SeleccionarMascota = () => {
+
+const [listado, setListado]=useState([])
+
+const fetchMascotas= async()=>{
+  const response = await fetch(`http://localhost:3000/mascotas/hospedadas`)
+  const data = await response.json()
+  console.log(data)
+  setListado(data)  
+}
+
+useEffect( () => {
+  fetchMascotas()  
+},[])
+
+
+
   return (
     <Container>
-      <TarjetaSeleccionMascota />
+      
+      {listado.mascotas.map(pet =>(
+        <TarjetaSeleccionMascota 
+          key ={pet.ID_Mascota}
+          nombre= {pet.Nombre}
+        />
+      ))}
+      
     </Container>
   );
 };

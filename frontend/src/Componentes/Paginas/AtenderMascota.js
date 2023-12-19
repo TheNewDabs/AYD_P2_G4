@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+
 import { TarjetaAtenderMascota } from "../Tarjetas/TarjetaAtenderMascota";
 
 const Container = styled.div`
@@ -24,9 +25,30 @@ const Form = styled.form`
 `;
 
 export const AtenderMascota = () => {
+  const [listado, setListado] = useState([]);
+
+  const fetchMascotas = async () => {
+    const response = await fetch(
+      `http://localhost:3000/cuidadores/mascotasAsignadas/1`
+    );
+    const data = await response.json();
+    console.log(data);
+    setListado(data);
+  };
+
+  useEffect(() => {
+    fetchMascotas();
+  }, []);
+
   return (
     <Container>
-      <TarjetaAtenderMascota />
+      
+      {listado.mascotas.map((pet) => (
+        <TarjetaAtenderMascota 
+          key={pet.ID_Mascota} 
+          nombre={pet.Nombre} />
+      ))}
+
     </Container>
   );
 };
