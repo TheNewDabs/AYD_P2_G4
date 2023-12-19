@@ -25,30 +25,59 @@ const Form = styled.form`
 `;
 
 export const AtenderMascota = () => {
-  const [listado, setListado] = useState([]);
 
-  const fetchMascotas = async () => {
-    const response = await fetch(
-      `http://localhost:3000/cuidadores/mascotasAsignadas/1`
-    );
-    const data = await response.json();
-    console.log(data);
-    setListado(data);
-  };
+  
+  const [lista, setLista] = useState([]);
 
   useEffect(() => {
-    fetchMascotas();
-  }, []);
+    obtenerMascotas();
+    console.log("libros alquiler");
+    console.log(lista);
+  }, []); 
+  
+
+
+  const obtenerMascotas = () => {
+    // obtener el userId del usuario logueado en localStorage
+    const local = localStorage.MyLibrary_session;
+    const UserID = 2 //JSON.parse(local).UserID;
+
+    fetch("http://localhost:3000/cuidadores/mascotasAsignadas/" + UserID, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      }
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setLista(data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   return (
     <Container>
-      
-      {listado.mascotas.map((pet) => (
+
+    <h1>aqui la tarjeta</h1>
+    {listado.mascotas.map((pet) => (
         <TarjetaAtenderMascota 
           key={pet.ID_Mascota} 
           nombre={pet.Nombre} />
       ))}
 
+
     </Container>
   );
 };
+
+
+/*    
+      
+      */

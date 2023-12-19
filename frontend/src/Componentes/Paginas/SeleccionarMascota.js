@@ -42,7 +42,6 @@ export const SeleccionarMascota = () => {
   }, []);
 
   const misMascotas = listado.mascotas;
-  console.log("******* mostrando");
   console.log(misMascotas);
 
   const mascotasComponentes =
