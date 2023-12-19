@@ -24,33 +24,32 @@ const Form = styled.form`
 `;
 
 export const SeleccionarMascota = () => {
+  const [listado, setListado] = useState([]);
 
-const [listado, setListado]=useState([])
+  const fetchMascotas = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/mascotas/hospedadas`);
+      const data = await response.json();
+      console.log(data);
+      setListado(data);
+    } catch (error) {
+      console.error("Error al obtener mascotas:", error);
+    }
+  };
 
-const fetchMascotas= async()=>{
-  const response = await fetch(`http://localhost:3000/mascotas/hospedadas`)
-  const data = await response.json()
-  console.log(data)
-  setListado(data)  
-}
+  useEffect(() => {
+    fetchMascotas();
+  }, []);
 
-useEffect( () => {
-  fetchMascotas()  
-},[])
+  const misMascotas = listado.mascotas;
+  console.log("******* mostrando");
+  console.log(misMascotas);
 
-
-
-  return (
-    <Container>
-      
-      {listado.mascotas.map(pet =>(
-        <TarjetaSeleccionMascota 
-          key ={pet.ID_Mascota}
-          nombre= {pet.Nombre}
-        />
-      ))}
-      
-    </Container>
-  );
+  const mascotasComponentes =
+    listado && listado.mascotas
+      ? listado.mascotas.map((pet) => (
+          <TarjetaSeleccionMascota key={pet.ID_Mascota} nombre={pet.Nombre} />
+        ))
+      : null;
+  return <Container>{mascotasComponentes}</Container>;
 };
-
