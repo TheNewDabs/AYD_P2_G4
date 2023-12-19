@@ -304,9 +304,6 @@ app.post("/usuarios/login", (req, res) => {
   });
 });
 
-
-
-
 // Endpoint para obtener todos los usuarios (solo accesible para administradores)
 app.get("/usuarios", async (req, res) => {
   try {
