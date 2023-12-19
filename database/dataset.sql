@@ -22,3 +22,5 @@ INSERT INTO Reseñas (ID_Usuario, Comentario, Calificación) VALUES
 -- Insertar datos en la tabla Perfil del Cuidador (si se utiliza)
 INSERT INTO Perfil_Cuidador (ID_Usuario, Experiencia, Calificaciones) VALUES
 (2, 'Más de 5 años de experiencia en cuidado de mascotas.', 4.5);
+
+
