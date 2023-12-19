@@ -6,7 +6,7 @@ import { MenuCuidador } from "./Componentes/Navegacion/MenuCuidador";
 import { Login } from "./Componentes/Paginas/login";
 import { Inicio } from "./Componentes/Paginas/Inicio";
 import { Template } from "./Componentes/Paginas/Template";
-import { DueñoAgregar } from "./Componentes/Paginas/DueñoAgregar";
+import { DueñoAgregar } from "./Componentes/Paginas/dueñoAgregar";
 
 export const Hotel = () => {
 
