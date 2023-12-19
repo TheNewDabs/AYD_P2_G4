@@ -1,7 +1,8 @@
 -- Insertar datos en la tabla Usuarios
 INSERT INTO Usuarios (Nombre, Apellido, Telefono, Email, Contraseña, Fecha_Nacimiento, Rol) VALUES
 ('Juan', 'Pérez', '123456789', 'juan.perez@example.com', 'contraseña123', '1980-04-01', 'Cliente'),
-('Maria', 'López', '987654321', 'maria.lopez@example.com', 'contraseña321', '1985-07-15', 'Cuidador');
+('Maria', 'López', '987654321', 'maria.lopez@example.com', 'contraseña321', '1985-07-15', 'Cuidador'),
+('Pedro', 'González', '123456789', 'pedro@example.com', "contraseña123", '1990-01-01', 'Cliente');
 
 -- Insertar datos en la tabla Mascotas
 INSERT INTO Mascotas (Nombre, Edad, Especie, Raza, Comportamiento, Contacto_Veterinario, Comentarios_Extra, ID_Usuario) VALUES

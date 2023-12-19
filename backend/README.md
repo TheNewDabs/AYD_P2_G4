@@ -10,6 +10,9 @@
 - **Frontend**
   - ReactJS
 
+## Pruebas de enpoints
+https://app.getpostman.com/join-team?invite_code=1ceafd28f95efdc68e1f24d7e0b29ada&target_code=28d5c7d491c6daeea2f5b31c375490ac
+
 # 🔎 Objetivos del manual
 
 ---
@@ -114,18 +117,17 @@ Salvo que se especifique una estructura de respuesta distinta al consumir un end
       
       </aside>
 
-  - ‘es*administrador’ *(Boolean, obligatorio)\_: Indica si el usuario que se está registrando es un administrador del sistema.
-
 - **Content-Type de la solicitud**
   ```json
-  {
-    "nombre": "Juan",
-    "apellido": "Pérez",
-    "numeroTelefono": "123456789",
-    "correoElectronico": "juan.perez@example.com",
-    "contrasenia": "Password123",
-    "fechaNacimiento": "1990-01-01"
-  }
+{
+  "nombre": "Juan2",
+  "apellido": "Pérez",
+  "telefono": "123456789",
+  "email": "juan2.perez@example.com",
+  "contrasenia": "Password123",
+  "fechaNacimiento": "1990-01-01",
+  "rol": "Cuidador"
+}
   ```
 - **Estructura de la respuesta**
   ```json
@@ -156,12 +158,12 @@ Salvo que se especifique una estructura de respuesta distinta al consumir un end
 
   ```json
   {
-    "success": true,
-    "mensaje": "Bienvenido",
-    "extra": {
-      "id_usuario": 1,
-      "rol": "Usuario"
-    }
+      "success": true,
+      "mensaje": "Bienvenido",
+      "extra": {
+          "rol": "Cuidador",
+          "Nombre": "Juan2"
+      }
   }
   ```
 
@@ -169,12 +171,12 @@ Salvo que se especifique una estructura de respuesta distinta al consumir un end
 
   ```json
   {
-    "success": true,
-    "mensaje": "Bienvenido",
-    "extra": {
-      "id_usuario": 1,
-      "rol": "Administrador"
-    }
+      "success": true,
+      "mensaje": "Bienvenido",
+      "extra": {
+          "rol": "Cliente",
+          "Nombre": "Juan2"
+      }
   }
   ```
 
@@ -186,13 +188,13 @@ Salvo que se especifique una estructura de respuesta distinta al consumir un end
 
   ```json
   {
-    "nombre": "NuevoNombre",
-    "apellido": "NuevoApellido",
-    "numeroTelefono": "987654321",
-    "correoElectronico": "nuevo.correo@example.com",
+    "nombre": "Juan2",
+    "apellido": "Pérez",
+    "telefono": "123456789",
+    "email": "juan2.perez@example.com",
     "contraseña": "Password123",
     "nuevaContraseña": "123",
-    "fechaNacimiento": "1995-05-15"
+    "fechaNacimiento": "1990-01-01"
   }
   ```
 

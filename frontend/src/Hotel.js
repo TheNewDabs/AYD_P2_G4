@@ -1,31 +1,58 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Minavbar } from "./Componentes/Navegacion/Minavbar";
-
-import { CrearPerfilMascota } from "./Componentes/Paginas/CrearPerfilMascota";
-import { SeleccionMascota }   from "./Componentes/Paginas/SeleccionMascota";
-import { AtenderMascota }     from "./Componentes/Paginas/AtenderMascota";
-import { HospedarMascota }    from "./Componentes/Paginas/HospedarMascota";
-import { Inicio }             from "./Componentes/Paginas/Inicio";
-import { Usuarios }           from "./Componentes/Paginas/Usuarios";
+//import { Minavbar } from "./Componentes/Navegacion/Minavbar";
+import { MenuDueño } from "./Componentes/Navegacion/MenuDueño";
+import { MenuCuidador } from "./Componentes/Navegacion/MenuCuidador";
+import { Login } from "./Componentes/Paginas/login";
+import { Inicio } from "./Componentes/Paginas/Inicio";
+import { Template } from "./Componentes/Paginas/Template";
 
 export const Hotel = () => {
   return (
     <>
-      <Minavbar />
-      <div className="container">
-        <Routes>
-          <Route path="/"             element={ <Inicio/> }/>
-          <Route path="/perfil"       element={ <CrearPerfilMascota/> }/>
-          <Route path="/seleccionar"  element={ <SeleccionMascota/> }/>
-          <Route path="/atender"      element={ <AtenderMascota/> }/>
-          <Route path="/hospedar"     element={ <HospedarMascota/> }/>
-          <Route path="/usuarios"     element={ <Usuarios/> }/>
-          <Route path="/*"            element={ <Navigate to="/" /> }/>
-        </Routes>        
-      </div>
+      <Routes>
+        <Route path="/" element={<Login/>}/>
+        <Route path="/template" element={<Login/>}/>
+        <Route path="/dueño/*" element={
+          <>
+            <MenuDueño/>
+            <Routes>
+              <Route path="" element={<Inicio/>}/>
+              <Route path="agregar" element={<Template/>}/>
+              <Route path="hospedar" element={<Template/>}/>
+              <Route path="reseñar" element={<Template/>}/>
+              <Route path="recoger" element={<Template/>}/>
+              <Route path="tienda" element={<Template/>}/>
+              <Route path="*" element={<Navigate to="/dueño"/>}/>
+            </Routes>
+          </>
+        } />
+        <Route path="/cuidador/*" element={
+          <>
+            <MenuCuidador/>
+            <Routes>
+              <Route path="" element={<Inicio/>}/>
+              <Route path="seleccionar" element={<Template/>}/>
+              <Route path="atender" element={<Template/>}/>
+              <Route path="devolver" element={<Template/>}/>
+              <Route path="reseñas" element={<Template/>}/>
+              <Route path="tienda" element={<Template/>}/>
+              <Route path="*" element={<Navigate to="/cuidador"/>}/>
+            </Routes>
+          </>
+        } />
+        <Route path="/*" element={<Navigate to="/"/>}/>
+      </Routes>
     </>
   );
 };
+
+/*
+<Route path="/perfil"       element={ <CrearPerfilMascota/> }/>
+<Route path="/seleccionar"  element={ <SeleccionMascota/> }/>
+<Route path="/atender"      element={ <AtenderMascota/> }/>
+<Route path="/hospedar"     element={ <HospedarMascota/> }/>
+<Route path="/usuarios"     element={ <Usuarios/> }/>
+*/
 
 /*
 <Routes>
