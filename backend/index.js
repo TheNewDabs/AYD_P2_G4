@@ -7,11 +7,48 @@ const util = require("./util");
 const moment = require("moment");
 const host = process.env.SV_HOST;
 const port = process.env.SV_PORT;
+const nodemailer = require('nodemailer');
+
 
 // Configuracion
 app.use(express.urlencoded({ limit: "10mb", extended: true })); // Middleware
 app.use(express.json({ limit: "10mb" })); // Middleware para manejar JSON y tamanio maximo del JSON
 app.use(cors({ origin: "*" })); // CORS
+
+
+// Configura el transporte de Nodemailer
+let transporter = nodemailer.createTransport({
+  service: 'gmail', // Reemplaza con tu servicio de correo electrónico
+  auth: {
+      user: process.env.EMAIL_USER, // Tu dirección de correo electrónico
+      pass: process.env.EMAIL_PASSWORD // Tu contraseña de correo electrónico
+  }
+});
+
+// Función para enviar correo electrónico
+function enviarCorreoVerificacion(usuarioEmail, usuarioNombre) {
+  const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: usuarioEmail,
+      subject: 'Verificación de Cuenta',
+      text: `Hola ${usuarioNombre},\n\nPor favor, verifica tu cuenta haciendo clic en el siguiente enlace:\n\n[Enlace de verificación]`
+  };
+
+  transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+          console.log(error);
+      } else {
+          console.log('Correo enviado: ' + info.response);
+      }
+  });
+}
+
+app.post("/usuarios/register2", (req, res) => {
+// ... Lógica para registrar al usuario
+const parametro = req.body;
+// Después del registro exitoso, enviar correo de verificación
+enviarCorreoVerificacion(parametro.email, parametro.nombre);
+});
 
 /** Endpoint inicial */
 app.get("/", (req, res) => {
