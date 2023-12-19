@@ -2,6 +2,13 @@
 CREATE DATABASE IF NOT EXISTS huellita_feliz;
 USE huellita_feliz;
 
+-- Crear tabla con logica para correo y token
+CREATE TABLE IF NOT EXISTS Validador (
+    ID_Validador INT AUTO_INCREMENT PRIMARY KEY,
+    Email VARCHAR(100) UNIQUE,
+    Token VARCHAR(255)
+);
+
 -- Crear tabla de Usuarios
 CREATE TABLE IF NOT EXISTS Usuarios (
     ID_Usuario INT AUTO_INCREMENT PRIMARY KEY,

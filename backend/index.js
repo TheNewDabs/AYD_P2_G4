@@ -8,14 +8,26 @@ const moment = require("moment");
 const host = process.env.SV_HOST;
 const port = process.env.SV_PORT;
 const nodemailer = require('nodemailer');
-
+const crypto = require('crypto');
 
 // Configuracion
 app.use(express.urlencoded({ limit: "10mb", extended: true })); // Middleware
 app.use(express.json({ limit: "10mb" })); // Middleware para manejar JSON y tamanio maximo del JSON
 app.use(cors({ origin: "*" })); // CORS
 
+// Funcion para generar el token a utilizar en la base de datos para el logeo de manera correcta
+function generarToken(longitud) {
+  const caracteresPermitidos = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const longitudCaracteres = caracteresPermitidos.length;
 
+  let token = '';
+  for (let i = 0; i < longitud; i++) {
+    const indiceAleatorio = crypto.randomInt(0, longitudCaracteres);
+    token += caracteresPermitidos.charAt(indiceAleatorio);
+  }
+
+  return token;
+}
 // Configura el transporte de Nodemailer
 let transporter = nodemailer.createTransport({
   service: 'gmail', // Reemplaza con tu servicio de correo electrónico
@@ -25,13 +37,54 @@ let transporter = nodemailer.createTransport({
   }
 });
 
+// Funcion para la logica de la tabla validador
+function logicaValidador(usuarioEmail, token) {
+
+  // validar que exista un registro con el usuarioEmail que nos dan en la tabla 'Validador'
+  const query = "SELECT * FROM Validador WHERE Email = ?";
+  db.query(query, [usuarioEmail], (err, result) => {
+      if (err) {
+          console.error("Error al obtener el usuario:", err);
+      } else {
+          if (result.length <= 0) {
+              // Si no existe, insertar el registro
+              const queryInsert = "INSERT INTO Validador (Email, Token) VALUES (?, ?)";
+              db.query(queryInsert, [usuarioEmail, token], (err, result) => {
+                  if (err) {
+                      console.error("Error al insertar el registro:", err);
+                  } else {
+                      console.log("Registro insertado correctamente");
+                  }
+              });
+          } else {
+              // Si existe, actualizar el registro
+              const queryUpdate = "UPDATE Validador SET Token = ? WHERE Email = ?";
+              db.query(queryUpdate, [token, usuarioEmail], (err, result) => {
+                  if (err) {
+                      console.error("Error al actualizar el registro:", err);
+                  } else {
+                      console.log("Registro actualizado correctamente");
+                  }
+              });
+          }
+      }
+  });
+
+}
+
 // Función para enviar correo electrónico
 function enviarCorreoVerificacion(usuarioEmail, usuarioNombre) {
+
+  token = generarToken(20);
+
+  // Hacer la insercion o el updte a la tabla 'Validador'
+  logicaValidador(usuarioEmail, token);
+
   const mailOptions = {
       from: process.env.EMAIL_USER,
       to: usuarioEmail,
       subject: 'Verificación de Cuenta',
-      text: `Hola ${usuarioNombre},\n\nPor favor, verifica tu cuenta haciendo clic en el siguiente enlace:\n\n[Enlace de verificación]`
+      text: `Hola ${usuarioNombre},\n\nPor favor, verifica tu cuenta utilizando el siguiente token:\n\n${token}`
   };
 
   transporter.sendMail(mailOptions, function(error, info){
@@ -89,6 +142,8 @@ app.post("/usuarios/register", (req, res) => {
               mensaje: "Ha ocurrido un error al insertar el usuario",
             });
           } else {
+            enviarCorreoVerificacion(parametro.email, parametro.nombre);
+
             res.json({
               success: true,
               mensaje: "Usuario creado correctamente",
@@ -107,56 +162,126 @@ app.post("/usuarios/register", (req, res) => {
     });
 });
 
+app.post("/usuarios/validar", (req, res) => {
+  const parametro = req.body;
+
+  const query = "SELECT * FROM Validador WHERE Email = ? AND Token = ?";
+  db.query(query, [parametro.email, parametro.token], (err, result) => {
+    if (err) {
+      console.error("Error al obtener el usuario:", err);
+      return res.status(500).json({
+        success: false,
+        mensaje: "Ha ocurrido un error al obtener el usuario",
+        error: err.message  // Devuelve el mensaje de error para diagnóstico.
+      });
+    }
+
+    if (result.length <= 0) {
+      return res.status(401).json({
+        success: false,
+        mensaje: "Token incorrecto",
+      });
+    }
+
+    const queryDelete = "DELETE FROM Validador WHERE Email = ?";
+    db.query(queryDelete, [parametro.email], (err, result) => {
+      if (err) {
+        console.error("Error al eliminar el registro de la tabla Validador:", err);
+        return res.status(500).json({
+          success: false,
+          mensaje: "No se pudo eliminar el registro de la tabla Validador",
+          error: err.message
+        });
+      }
+
+      console.log("Registro de Validador eliminado correctamente");
+      return res.json({
+        success: true,
+        mensaje: "Usuario validado correctamente",
+        id_insertado: result.insertId,
+      });
+    });
+  });
+});
+
 /** Login del usuario */
 app.post("/usuarios/login", (req, res) => {
-  // Se recibe los parametros
+  // Se recibe los parámetros
   const correo = req.body.correoElectronico;
   const contrasenia = req.body.contrasenia;
 
-  // Se define el query que obtendra la contrasenia encriptada
-  const query =
-    "SELECT ID_Usuario, Contraseña, Rol, nombre FROM Usuarios WHERE Email = ?";
-
-  // Se ejecuta el query y se realiza la comparacion de contrasenia para verificar que el inicio de sesion sea correcto
-  db.query(query, [correo], (err, result) => {
-    if (err) {
-      console.error("Error al obtener usuario:", err);
-      res.json({
-        success: false,
-        mensaje: "Ha ocurrido un error al obtener el usuario",
-      });
-    } else {
-      if (result.length <= 0) {
-        res.json({ success: false, mensaje: "Credenciales incorrectas" });
+  // Validar que dicho correo no esté en el registro de validador
+  const queryValidador = "SELECT * FROM Validador WHERE Email = ?";
+  const validadorPromise = new Promise((resolve, reject) => {
+    db.query(queryValidador, [correo], (err, result) => {
+      if (err) {
+        console.error("Error al obtener el usuario:", err);
+        reject("Ha ocurrido un error al obtener el usuario");
       } else {
-        util
-          .comparePassword(contrasenia, result[0].Contraseña)
-          .then((esCorrecta) => {
-            if (esCorrecta) {
-              res.json({
-                success: true,
-                mensaje: "Bienvenido",
-                extra: {
-                  id_usuario: result[0].UserID,
-                  rol: result[0].Rol,
-                  Nombre: result[0].nombre,
-                },
+        if (result.length > 0) {
+          reject("Usuario no validado");
+        } else {
+          // Realizar la segunda consulta aquí
+          const query =
+            "SELECT ID_Usuario, Contraseña, Rol, nombre FROM Usuarios WHERE Email = ?";
+          db.query(query, [correo], (err, result) => {
+            if (err) {
+              return res.json({
+                success: false,
+                mensaje: "Ha ocurrido un error al obtener el usuario",
               });
             } else {
-              res.json({ success: false, mensaje: "Credenciales incorrectas" });
+              if (result.length <= 0) {
+                return res.json({
+                  success: false,
+                  mensaje: "Credenciales incorrectas",
+                });
+              } else {
+                util
+                  .comparePassword(contrasenia, result[0].Contraseña)
+                  .then((esCorrecta) => {
+                    if (esCorrecta) {
+                      return res.json({
+                        success: true,
+                        mensaje: "Bienvenido",
+                        extra: {
+                          id_usuario: result[0].UserID,
+                          rol: result[0].Rol,
+                          Nombre: result[0].nombre,
+                        },
+                      });
+                    } else {
+                      return res.json({
+                        success: false,
+                        mensaje: "Credenciales incorrectas",
+                      });
+                    }
+                  })
+                  .catch((error) => {
+                    console.error("Error al comparar contraseñas:", error);
+                    return res.json({
+                      success: false,
+                      mensaje:
+                        "Ha ocurrido un error al desencriptar la contraseña",
+                    });
+                  });
+              }
             }
-          })
-          .catch((error) => {
-            console.error("Error al comparar contraseñas:", error);
-            res.json({
-              success: false,
-              mensaje: "Ha ocurrido un error al desencriptar la contraseña",
-            });
           });
+          // Resolver la promesa si no hay errores
+          resolve();
+        }
       }
-    }
+    });
+  });
+
+  validadorPromise.catch((mensaje) => {
+    // Se ha producido un error durante la consulta
+    console.log("Usuario no validado:", mensaje);
+    return res.json({ success: false, mensaje: mensaje });
   });
 });
+
 
 // Endpoint para obtener todos los usuarios (solo accesible para administradores)
 app.get("/usuarios", async (req, res) => {

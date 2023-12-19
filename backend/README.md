@@ -180,6 +180,26 @@ Salvo que se especifique una estructura de respuesta distinta al consumir un end
   }
   ```
 
+  o
+
+  ```json
+    {
+      "success": false,
+      "mensaje": "Usuario no validado"
+    }
+  ```
+
+   o
+
+   ```json
+    {
+    "success": false,
+    "mensaje": "Credenciales incorrectas"
+    }
+   ```
+
+
+
 ### 🟠 [PUT] /usuarios/editar/:userID 
 
 - **Descripción**
@@ -210,3 +230,36 @@ Salvo que se especifique una estructura de respuesta distinta al consumir un end
 
 - **Descripción**
   - Eliminar Usuario
+
+### 🟢 **[POST] /usuarios/validar**
+
+- **Descripción**
+  - Validar al usuario mediante el token que se le envia al correo
+- **Parámetros de la solicitud**
+  - ‘email’ _(String, obligatorio)_: Correo del usuario
+  - ‘token’ _(String, obligatorio)_: token que se le envia al correo del usuario
+- **Content-Type de la solicitud**
+
+  ```json
+  {
+    "email": "tams.morales@hotmail.com",
+    "token": "ifaJkpB9yJCMwfp4BAXi"
+  }
+  ```
+- **Estructura de la respuesta**
+    ```json
+    {
+    "success": true,
+    "mensaje": "Usuario validado correctamente",
+    "id_insertado": 0
+    }
+
+    ```
+    o
+    ```json
+    {
+    "success": false,
+    "mensaje": "Token incorrecto"
+    }
+    ```
+
