@@ -1,5 +1,6 @@
-import React from 'react'
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
+import { TarjetaAtenderMascota } from "../Tarjetas/TarjetaAtenderMascota";
 
 const Container = styled.div`
   display: flex;
@@ -22,14 +23,10 @@ const Form = styled.form`
   border: 1px solid #ccc;
 `;
 
-export const Template = () => {
+export const AtenderMascota = () => {
   return (
     <Container>
-      <FormContainer>
-        <Form>
-          <h1>Texto de prueba estoy en template</h1>
-        </Form>
-      </FormContainer>
+      <TarjetaAtenderMascota />
     </Container>
-  )
-}
+  );
+};

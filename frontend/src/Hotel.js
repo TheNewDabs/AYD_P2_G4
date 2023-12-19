@@ -1,10 +1,12 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-//import { Minavbar } from "./Componentes/Navegacion/Minavbar";
+
 import { MenuDueño } from "./Componentes/Navegacion/MenuDueño";
 import { MenuCuidador } from "./Componentes/Navegacion/MenuCuidador";
 import { Login } from "./Componentes/Paginas/login";
 import { Inicio } from "./Componentes/Paginas/Inicio";
 import { Template } from "./Componentes/Paginas/Template";
+import { AtenderMascota} from './Componentes/Paginas/AtenderMascota'
+import { SeleccionarMascota } from "./Componentes/Paginas/SeleccionarMascota";
 
 export const Hotel = () => {
   return (
@@ -31,8 +33,8 @@ export const Hotel = () => {
             <MenuCuidador/>
             <Routes>
               <Route path="" element={<Inicio/>}/>
-              <Route path="seleccionar" element={<Template/>}/>
-              <Route path="atender" element={<Template/>}/>
+              <Route path="seleccionar" element={<SeleccionarMascota/>}/>
+              <Route path="atender" element={<AtenderMascota/>}/>
               <Route path="devolver" element={<Template/>}/>
               <Route path="reseñas" element={<Template/>}/>
               <Route path="tienda" element={<Template/>}/>
