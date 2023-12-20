@@ -6,6 +6,8 @@ import { MenuCuidador } from "./Componentes/Navegacion/MenuCuidador";
 import { Login } from "./Componentes/Paginas/login";
 import { Inicio } from "./Componentes/Paginas/Inicio";
 import { Template } from "./Componentes/Paginas/Template";
+import { AtenderMascota} from './Componentes/Paginas/AtenderMascota'
+import { SeleccionarMascota } from "./Componentes/Paginas/SeleccionarMascota";
 import { DueñoAgregar } from "./Componentes/Paginas/dueñoAgregar";
 
 export const Hotel = () => {
@@ -75,8 +77,8 @@ export const Hotel = () => {
             <MenuCuidador user={user} setUser={setUser}/>
             <Routes>
               <Route path="" element={<Inicio user={user} setUser={setUser}/>}/>
-              <Route path="seleccionar" element={<Template/>}/>
-              <Route path="atender" element={<Template/>}/>
+              <Route path="seleccionar" element={<SeleccionarMascota/>}/>
+              <Route path="atender" element={<AtenderMascota/>}/>
               <Route path="devolver" element={<Template/>}/>
               <Route path="reseñas" element={<Template/>}/>
               <Route path="tienda" element={<Template/>}/>
