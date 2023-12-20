@@ -20,7 +20,6 @@ const Form = styled.form`
   padding: 20px;
   border-radius: 8px;
   border: 1px solid #ccc;
-  width: 350px;
 `;
 
 const Colorbtn = styled.div`
