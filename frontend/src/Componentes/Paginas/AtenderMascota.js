@@ -35,7 +35,7 @@ export const AtenderMascota = () => {
     console.log(lista);
   }, []); 
   
-
+  const listado = []
 
   const obtenerMascotas = () => {
     // obtener el userId del usuario logueado en localStorage
