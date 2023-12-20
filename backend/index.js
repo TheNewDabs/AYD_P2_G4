@@ -646,12 +646,12 @@ app.get("/cuidadores/mascotasAsignadas/:idCuidador", (req, res) => {
 
 
 // Endpoint para obtener todas las mascotas de un usuario que no esten ospedadadas
-app.get("/usuarios/:idUsuario/mascotasNoHospedadas", (req, res) => {
+app.get("/usuarios/mascotasNoHospedadas/:idUsuario", (req, res) => {
   const idUsuario = req.params.idUsuario;
 
   // Consulta SQL para obtener las mascotas que no están hospedadas
   const query = `
-      SELECT m.ID_Mascota, m.Nombre, m.Especie, m.Raza, m.Comportamiento
+      SELECT m.ID_Mascota, m.Nombre, m.Especie, m.Raza, m.Edad
       FROM Mascotas m
       LEFT JOIN Hospedajes h ON m.ID_Mascota = h.ID_Mascota AND h.Estado = 'Hospedado'
       WHERE m.ID_Usuario = ? AND h.ID_Hospedaje IS NULL`;

@@ -14,6 +14,7 @@ const CardContainer = styled.div`
   flex-wrap: wrap;
   justify-content: space-around;
   padding: 20px;
+  align-items: center;
 `;
 
 const MascotaCard = styled.div`
@@ -21,7 +22,8 @@ const MascotaCard = styled.div`
   border-radius: 8px;
   margin: 10px;
   padding: 10px;
-  width: 200px;
+  width: 300px;
+  background-color: #ccf9ff;
 `;
 
 const HospedarButton = styled.button`
@@ -38,7 +40,7 @@ export const DueñoHospedar = ({user}) => {
 
   useEffect(() => {
     // Realiza un fetch para obtener la lista de mascotas disponibles
-    fetch('http://localhost:3000/mascotas/disponibles')
+    fetch('http://localhost:3000/usuarios/mascotasNoHospedadas/' + user.ID_Usuario)
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
@@ -46,7 +48,7 @@ export const DueñoHospedar = ({user}) => {
         }
       })
       .catch((error) => console.error('Error fetching mascotas:', error));
-  }, []); // Se ejecuta solo una vez al montar el componente
+  }); // Se ejecuta solo una vez al montar el componente
 
   const handleHospedarClick = (idMascota) => {
     // Lógica para hospedar la mascota con el ID idMascota
@@ -57,7 +59,7 @@ export const DueñoHospedar = ({user}) => {
     <Container>
       <CardContainer>
         {mascotas.map((mascota) => (
-          <MascotaCard key={mascota.id}>
+          <MascotaCard key={mascota.ID_Mascota}>
             <h3>{mascota.Nombre}</h3>
             <p>Edad: {mascota.Edad} años</p>
             <p>Especie: {mascota.Especie}</p>
