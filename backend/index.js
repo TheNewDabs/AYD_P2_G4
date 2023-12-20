@@ -735,6 +735,34 @@ app.delete("/mascotas/devolver", (req, res) => {
 });
 
 
+app.get("/usuarios/:idUsuario/mascotasHospedadas", (req, res) => {
+  const idUsuario = req.params.idUsuario;
+
+  // Consulta SQL para obtener las mascotas hospedadas y su estado
+  const query = `
+      SELECT m.ID_Mascota, m.Nombre, m.Especie, m.Raza, h.Fecha_Inicio, h.Fecha_Fin, h.Estado
+      FROM Mascotas m
+      INNER JOIN Hospedajes h ON m.ID_Mascota = h.ID_Mascota
+      WHERE m.ID_Usuario = ?`;
+
+  db.query(query, [idUsuario], (err, result) => {
+      if (err) {
+          console.error("Error al obtener las mascotas hospedadas:", err);
+          res.json({
+              success: false,
+              mensaje: "Ha ocurrido un error al obtener las mascotas hospedadas"
+          });
+      } else {
+          res.json({
+              success: true,
+              mensaje: "Mascotas hospedadas obtenidas correctamente",
+              mascotas: result
+          });
+      }
+  });
+});
+
+
 /** Inicia el servidor y hace que escuche en el puerto especificado */
 app.listen(port, host, () => {
   console.log(`La API está escuchando en http://${host}:${port}`);
