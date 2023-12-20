@@ -482,24 +482,40 @@ app.post("/mascotas/register", (req, res) => {
 app.post("/hospedajes/create", (req, res) => {
   const { idMascota, fechaInicio, fechaFin } = req.body;
   // Aquí puedes añadir validaciones para los datos recibidos
+  // Actualiza la tabla Mascotas para indicar que la mascota está hospedada
+  const queryMascotas = "UPDATE Mascotas SET EstaHospedado = TRUE WHERE ID_Mascota = ?";
 
-  // Inserta un nuevo registro en la tabla Hospedajes
-  const query = `INSERT INTO Hospedajes (ID_Mascota, Fecha_Inicio, Fecha_Fin, Estado) VALUES (?, ?, ?, 'Pendiente'); 
-  UPDATE Mascotas SET EstaHospedado = TRUE WHERE ID_Mascota = ?;`;
-  db.query(query, [idMascota, fechaInicio, fechaFin, idMascota], (err, result) => {
-    if (err) {
-      console.error("Error al crear el hospedaje:", err);
-      res.json({
-        success: false,
-        mensaje: "Ha ocurrido un error al registrar el hospedaje",
-      });
-    } else {
-      res.json({
-        success: true,
-        mensaje: "Hospedaje registrado correctamente",
-        idHospedaje: result.insertId,
-      });
-    }
+  db.query(queryMascotas, [idMascota], (err, result) => {
+      if (err) {
+          console.error("Error al actualizar Mascotas:", err);
+          res.json({
+              success: false,
+              mensaje: "Ha ocurrido un error al actualizar el estado de la mascota"
+          });
+      } else if (result.affectedRows === 0) {
+          res.json({
+              success: false,
+              mensaje: "Mascota no encontrada o no modificada"
+          });
+      } else {
+          // Inserta un nuevo registro en la tabla Hospedajes
+          const query = "INSERT INTO Hospedajes (ID_Mascota, Fecha_Inicio, Fecha_Fin, Estado) VALUES (?, ?, ?, 'Pendiente')";
+          db.query(query, [idMascota, fechaInicio, fechaFin], (err, result) => {
+              if (err) {
+                  console.error("Error al crear el hospedaje:", err);
+                  res.json({
+                      success: false,
+                      mensaje: "Ha ocurrido un error al registrar el hospedaje"
+                  });
+              } else {
+                  res.json({
+                      success: true,
+                      mensaje: "Hospedaje registrado correctamente",
+                      idHospedaje: result.insertId
+                  });
+              }
+          });
+      }
   });
 });
 
