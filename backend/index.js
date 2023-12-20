@@ -645,6 +645,35 @@ app.get("/cuidadores/mascotasAsignadas/:idCuidador", (req, res) => {
 });
 
 
+// Endpoint para obtener todas las mascotas de un usuario que no esten ospedadadas
+app.get("/usuarios/:idUsuario/mascotasNoHospedadas", (req, res) => {
+  const idUsuario = req.params.idUsuario;
+
+  // Consulta SQL para obtener las mascotas que no están hospedadas
+  const query = `
+      SELECT m.ID_Mascota, m.Nombre, m.Especie, m.Raza, m.Comportamiento
+      FROM Mascotas m
+      LEFT JOIN Hospedajes h ON m.ID_Mascota = h.ID_Mascota AND h.Estado = 'Hospedado'
+      WHERE m.ID_Usuario = ? AND h.ID_Hospedaje IS NULL`;
+
+  db.query(query, [idUsuario], (err, result) => {
+      if (err) {
+          console.error("Error al obtener las mascotas no hospedadas:", err);
+          res.json({
+              success: false,
+              mensaje: "Ha ocurrido un error al obtener las mascotas no hospedadas"
+          });
+      } else {
+          res.json({
+              success: true,
+              mensaje: "Mascotas no hospedadas obtenidas correctamente",
+              mascotas: result
+          });
+      }
+  });
+});
+
+
 /** Inicia el servidor y hace que escuche en el puerto especificado */
 app.listen(port, host, () => {
   console.log(`La API está escuchando en http://${host}:${port}`);
