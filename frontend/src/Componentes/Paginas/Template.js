@@ -27,7 +27,7 @@ export const Template = () => {
     <Container>
       <FormContainer>
         <Form>
-          <h1>Texto</h1>
+          <h1>Texto de prueba estoy en template</h1>
         </Form>
       </FormContainer>
     </Container>

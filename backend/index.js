@@ -167,7 +167,6 @@ app.post("/usuarios/login", (req, res) => {
   const correo = req.body.correoElectronico;
   const contrasenia = req.body.contrasenia;
   const token = contrasenia;
-
   // Validar que dicho correo no esté en el registro de validador
   const queryValidador = "SELECT * FROM Validador WHERE Email = ?";
   db.query(queryValidador, [correo], (err, result) => {
@@ -195,7 +194,7 @@ app.post("/usuarios/login", (req, res) => {
           if (result.length > 0) {
             // Token correcto, obtener datos del usuario y eliminar el registro de la tabla Validador
             const queryUsuario =
-              "SELECT ID_Usuario, Contraseña, Rol, nombre FROM Usuarios WHERE Email = ?";
+              "SELECT ID_Usuario, Contraseña, Rol, Nombre, Apellido, Telefono, Fecha_Nacimiento FROM Usuarios WHERE Email = ?";
             db.query(queryUsuario, [correo], (err, resultUsuario) => {
               if (err) {
                 return res.json({
@@ -228,15 +227,19 @@ app.post("/usuarios/login", (req, res) => {
                     console.log(
                       "Registro de Validador eliminado correctamente"
                     );
-
                     // Retornar respuesta sin validar la contraseña
                     return res.json({
                       success: true,
                       mensaje: "Bienvenido",
-                      extra: {
-                        id_usuario: resultUsuario[0].ID_Usuario,
-                        rol: resultUsuario[0].Rol,
-                        Nombre: resultUsuario[0].nombre,
+                      usuario: {
+                        ID_Usuario: resultUsuario[0].ID_Usuario,
+                        Nombre: resultUsuario[0].Nombre,
+                        Apellido: resultUsuario[0].Apellido,
+                        Telefono: resultUsuario[0].Telefono,
+                        Email: correo,
+                        Fecha_Nacimiento: resultUsuario[0].Fecha_Nacimiento,
+                        Rol: resultUsuario[0].Rol,
+                        Contraseña: '',
                       },
                     });
                   });
@@ -254,7 +257,7 @@ app.post("/usuarios/login", (req, res) => {
       } else {
         // El correo no existe en la tabla Validador, realizar el proceso normal para validar la contraseña
         const query =
-          "SELECT ID_Usuario, Contraseña, Rol, nombre FROM Usuarios WHERE Email = ?";
+          "SELECT ID_Usuario, Contraseña, Rol, Nombre, Apellido, Telefono, Fecha_Nacimiento FROM Usuarios WHERE Email = ?";
         db.query(query, [correo], (err, result) => {
           if (err) {
             return res.json({
@@ -275,10 +278,15 @@ app.post("/usuarios/login", (req, res) => {
                     return res.json({
                       success: true,
                       mensaje: "Bienvenido",
-                      extra: {
-                        id_usuario: result[0].ID_Usuario,
-                        rol: result[0].Rol,
-                        Nombre: result[0].nombre,
+                      usuario: {
+                        ID_Usuario: result[0].ID_Usuario,
+                        Nombre: result[0].Nombre,
+                        Apellido: result[0].Apellido,
+                        Telefono: result[0].Telefono,
+                        Email: correo,
+                        Fecha_Nacimiento: result[0].Fecha_Nacimiento,
+                        Rol: result[0].Rol,
+                        Contraseña: '',
                       },
                     });
                   } else {
@@ -304,8 +312,43 @@ app.post("/usuarios/login", (req, res) => {
   });
 });
 
+//Optener usuario por ID
+app.get("/usuarios/:userID", async (req, res) => {
+  try {
+    // Obtener el ID de usuario de los parámetros de la solicitud
+    const { userID } = req.params;
 
+    // Consultar los datos del usuario por ID (excepto la contraseña)
+    const [usuario] = await db
+      .promise()
+      .query("SELECT ID_Usuario, Nombre, Apellido, Telefono, Email, Fecha_Nacimiento, Rol FROM Usuarios WHERE ID_Usuario = ?", [userID]);
 
+    // Verificar si se encontró el usuario
+    if (usuario.length > 0) {
+      // Enviar los datos del usuario como respuesta
+      res.json({
+        success: true,
+        mensaje: "Datos del usuario obtenidos correctamente",
+        usuario: {
+          ID_Usuario: resultUsuario[0].ID_Usuario,
+          Nombre: resultUsuario[0].Nombre,
+          Apellido: resultUsuario[0].Apellido,
+          Telefono: resultUsuario[0].Telefono,
+          Email: correo,
+          Fecha_Nacimiento: resultUsuario[0].Fecha_Nacimiento,
+          Rol: resultUsuario[0].Rol,
+          Contraseña: '',
+        },
+      });
+    } else {
+      // Si no se encuentra el usuario, enviar un mensaje de error
+      res.status(404).json({ success: false, mensaje: "Usuario no encontrado" });
+    }
+  } catch (error) {
+    console.error("Error al obtener los datos del usuario:", error);
+    res.status(500).json({ success: false, mensaje: "Error interno del servidor" });
+  }
+});
 
 // Endpoint para obtener todos los usuarios (solo accesible para administradores)
 app.get("/usuarios", async (req, res) => {
@@ -353,6 +396,7 @@ app.put("/usuarios/editar/:userID", async (req, res) => {
       nuevaContraseña,
       fechaNacimiento,
     } = req.body;
+
     const { userID } = req.params;
 
     // Verificar la contraseña del usuario
@@ -365,7 +409,7 @@ app.put("/usuarios/editar/:userID", async (req, res) => {
     );
 
     if (!contraseñaCorrecta) {
-      return res.status(401).json({ error: "Contraseña incorrecta" });
+      return res.status(401).json({success: false, message: "Contraseña incorrecta" });
     }
 
     util
@@ -373,21 +417,24 @@ app.put("/usuarios/editar/:userID", async (req, res) => {
       .then((hashedPassword) => {
         const hashed = hashedPassword;
         db.promise().query(
-          "UPDATE Usuarios SET nombre = ?, apellido = ?, telefono = ?, email = ?, contraseña = ?, fechaNacimiento = ? WHERE ID_Usuario = ?",
-          [nombre, apellido, telefono, email, hashed, fechaNacimiento, userID]
+          "UPDATE Usuarios SET nombre = ?, apellido = ?, telefono = ?, email = ?, contraseña = ?, Fecha_Nacimiento = ? WHERE ID_Usuario = ?",
+          [nombre, apellido, telefono, email, hashed, (fechaNacimiento ? fechaNacimiento.slice(0, 10) : ''), userID]
         );
       })
       .catch((error) => {
         console.error("Error al encriptar contraseña:", error);
         res.json({
           success: false,
-          mensaje: "Ha ocurrido un error al encriptar la contraseña",
+          message: "Ha ocurrido un error al encriptar la contraseña",
         });
       });
     // Actualizar la información del usuario en la base de datos
 
     // Enviar respuesta de éxito
-    res.json({ message: "Usuario actualizado con éxito" });
+    res.json({ 
+      success: true,
+      message: "Usuario actualizado con éxito" 
+    });
   } catch (error) {
     console.error("Error al editar un usuario:", error);
     res.status(500).json({ error: "Error interno del servidor" });

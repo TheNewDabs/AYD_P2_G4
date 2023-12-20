@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
   display: flex;
@@ -21,7 +21,7 @@ const NavMenu = styled.div`
 
 const LogoContainer = styled.div`
   position: absolute;
-  height: 150px;
+  height: 140px;
   top: 75px;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -36,8 +36,8 @@ const NavLinks = styled.div`
   gap: 5px;
   max-width: 42%;
 
-  @media (max-width: 768px) {
-    display: ${(props) => (props.collapsed ? 'none' : 'flex')};
+  @media (max-width: 1150px) {
+    display: ${(props) => (props.$collapsed ? 'none' : 'flex')};
     flex-direction: column;
     position: absolute;
     top: 70px;
@@ -63,23 +63,44 @@ const HamburgerButton = styled.button`
   color: white;
   font-size: 18px;
 
-  @media (max-width: 768px) {
+  @media (max-width: 1150px) {
     display: block;
   }
 `;
 
-export const MenuDueño = () => {
+export const MenuDueño = ({user, setUser}) => {
   const [collapsed, setCollapsed] = useState(true);
   const [selectedLink, setSelectedLink] = useState('');
+  const push = useNavigate();
 
   const handleLinkClick = (link) => {
     setSelectedLink(link);
     setCollapsed(true);
+    if (link === 'cerrar-sesion') {
+      localStorage.setItem('Huellita_Feliz_session', JSON.stringify({ 'ID_Usuario': -1, 'Nombre': '', 'Apellido': '', 'Telefono': '', 'Email': '', 'Contraseña': '', 'Fecha_Nacimiento': '', 'Rol': '' }));
+      setUser({ 'ID_Usuario': -1, 'Nombre': '', 'Apellido': '', 'Telefono': '', 'Email': '', 'Contraseña': '', 'Fecha_Nacimiento': '', 'Rol': '' })
+    }
   };
 
   const toggleMenu = () => {
     setCollapsed(!collapsed);
   };
+
+  const Inicial = () => {
+    if (user.ID_Usuario === -1) {
+      const TempUser = JSON.parse(localStorage.getItem("Huellita_Feliz_session"));
+      if(TempUser.ID_Usuario === -1){
+        push('/');
+        localStorage.setItem('Huellita_Feliz_session', JSON.stringify({ 'ID_Usuario': -1, 'Nombre': '', 'Apellido': '', 'Telefono': '', 'Email': '', 'Contraseña': '', 'Fecha_Nacimiento': '', 'Rol': '' }));
+      }else{
+        setUser(TempUser);
+      }
+    }
+  }
+
+  useEffect(() => {
+    Inicial(); // Llamada a la función Inicial al montar el componente
+  }, []);
 
   return (
     <Container>
@@ -88,7 +109,7 @@ export const MenuDueño = () => {
         <NavLink to="/dueño" onClick={() => handleLinkClick('')}>
           <img src="/images/Nombre.png" alt="Botón de imagen izquierda" height="50px" />
         </NavLink>
-        <NavLinks collapsed={collapsed}>
+        <NavLinks $collapsed={collapsed}>
           <StyledNavLink to="/dueño/agregar" selected={selectedLink === 'agregar'} onClick={() => handleLinkClick('agregar')}> Agregar Mascota </StyledNavLink>
           <StyledNavLink to="/dueño/hospedar" selected={selectedLink === 'hospedar'} onClick={() => handleLinkClick('hospedar')} > Hospedar </StyledNavLink>
           <StyledNavLink to="/dueño/reseñar" selected={selectedLink === 'resenar'} onClick={() => handleLinkClick('resenar')} > Reseñar </StyledNavLink>
