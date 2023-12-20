@@ -9,6 +9,7 @@ import { Template } from "./Componentes/Paginas/Template";
 import { AtenderMascota} from './Componentes/Paginas/AtenderMascota'
 import { SeleccionarMascota } from "./Componentes/Paginas/SeleccionarMascota";
 import { DueñoAgregar } from "./Componentes/Paginas/dueñoAgregar";
+import { DueñoHospedar } from "./Componentes/Paginas/dueñoHospedar";
 
 export const Hotel = () => {
 
@@ -64,7 +65,7 @@ export const Hotel = () => {
             <Routes>
               <Route path="" element={<Inicio user={user} setUser={setUser}/>}/>
               <Route path="agregar" element={<DueñoAgregar user={user}/>}/>
-              <Route path="hospedar" element={<Template/>}/>
+              <Route path="hospedar" element={<DueñoHospedar user={user}/>}/>
               <Route path="reseñar" element={<Template/>}/>
               <Route path="recoger" element={<Template/>}/>
               <Route path="tienda" element={<Template/>}/>
@@ -77,8 +78,8 @@ export const Hotel = () => {
             <MenuCuidador user={user} setUser={setUser}/>
             <Routes>
               <Route path="" element={<Inicio user={user} setUser={setUser}/>}/>
-              <Route path="seleccionar" element={<SeleccionarMascota/>}/>
-              <Route path="atender" element={<AtenderMascota/>}/>
+              <Route path="seleccionar" element={<SeleccionarMascota user={user}/>}/>
+              <Route path="atender" element={<AtenderMascota user={user}/>}/>
               <Route path="devolver" element={<Template/>}/>
               <Route path="reseñas" element={<Template/>}/>
               <Route path="tienda" element={<Template/>}/>

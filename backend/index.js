@@ -481,37 +481,51 @@ app.post("/mascotas/register", (req, res) => {
 
 app.post("/hospedajes/create", (req, res) => {
   const { idMascota, fechaInicio, fechaFin } = req.body;
-
   // Aquí puedes añadir validaciones para los datos recibidos
+  // Actualiza la tabla Mascotas para indicar que la mascota está hospedada
+  const queryMascotas = "UPDATE Mascotas SET EstaHospedado = TRUE WHERE ID_Mascota = ?";
 
-  // Inserta un nuevo registro en la tabla Hospedajes
-  const query =
-    "INSERT INTO Hospedajes (ID_Mascota, Fecha_Inicio, Fecha_Fin, Estado) VALUES (?, ?, ?, 'Pendiente')";
-  db.query(query, [idMascota, fechaInicio, fechaFin], (err, result) => {
-    if (err) {
-      console.error("Error al crear el hospedaje:", err);
-      res.json({
-        success: false,
-        mensaje: "Ha ocurrido un error al registrar el hospedaje",
-      });
-    } else {
-      res.json({
-        success: true,
-        mensaje: "Hospedaje registrado correctamente",
-        idHospedaje: result.insertId,
-      });
-    }
+  db.query(queryMascotas, [idMascota], (err, result) => {
+      if (err) {
+          console.error("Error al actualizar Mascotas:", err);
+          res.json({
+              success: false,
+              mensaje: "Ha ocurrido un error al actualizar el estado de la mascota"
+          });
+      } else if (result.affectedRows === 0) {
+          res.json({
+              success: false,
+              mensaje: "Mascota no encontrada o no modificada"
+          });
+      } else {
+          // Inserta un nuevo registro en la tabla Hospedajes
+          const query = "INSERT INTO Hospedajes (ID_Mascota, Fecha_Inicio, Fecha_Fin, Estado) VALUES (?, ?, ?, 'Pendiente')";
+          db.query(query, [idMascota, fechaInicio, fechaFin], (err, result) => {
+              if (err) {
+                  console.error("Error al crear el hospedaje:", err);
+                  res.json({
+                      success: false,
+                      mensaje: "Ha ocurrido un error al registrar el hospedaje"
+                  });
+              } else {
+                  res.json({
+                      success: true,
+                      mensaje: "Hospedaje registrado correctamente",
+                      idHospedaje: result.insertId
+                  });
+              }
+          });
+      }
   });
 });
 
 app.get("/mascotas/hospedadas", (req, res) => {
   // Consulta SQL para obtener las mascotas hospedadas
-  // Se asume que el estado 'Pendiente' indica una mascota actualmente en el hotel pero no ha sido atendida por un cuidador
   const query = `
-      SELECT m.ID_Mascota, m.Nombre, m.Especie, m.Raza, h.Fecha_Inicio, h.Fecha_Fin, h.Estado
+      SELECT m.ID_Mascota, m.Nombre, m.Especie, m.Raza, m.Edad, m.Comportamiento, m.Comentarios_Extra, m.Contacto_Veterinario, h.Fecha_Inicio, h.Fecha_Fin, h.Estado
       FROM Mascotas m
       INNER JOIN Hospedajes h ON m.ID_Mascota = h.ID_Mascota
-      WHERE h.Estado = 'Pendiente'`;
+      WHERE h.ID_Cuidador IS NULL`;
 
   db.query(query, (err, result) => {
     if (err) {
@@ -533,7 +547,6 @@ app.get("/mascotas/hospedadas", (req, res) => {
 app.put("/hospedajes/assign", (req, res) => {
   // Se reciben los parámetros necesarios
   const { idMascota, idCuidador } = req.body;
-
   // Comprobar que el cuidador no tenga ya el máximo de 2 mascotas asignadas
   const queryCuidador =
     "SELECT COUNT(*) AS Cantidad FROM Hospedajes WHERE ID_Cuidador = ?";
@@ -622,7 +635,7 @@ app.get("/cuidadores/mascotasAsignadas/:idCuidador", (req, res) => {
 
   // Consulta SQL para obtener las mascotas asignadas al cuidador
   const query = `
-      SELECT m.ID_Mascota, m.Nombre, m.Especie, m.Raza, h.Fecha_Inicio, h.Fecha_Fin, h.Estado
+      SELECT m.ID_Mascota, m.Nombre, m.Especie, m.Raza, m.Edad, m.Comportamiento, m.Comentarios_Extra, m.Contacto_Veterinario, h.Fecha_Inicio, h.Fecha_Fin, h.Estado, h.ID_Hospedaje
       FROM Mascotas m
       INNER JOIN Hospedajes h ON m.ID_Mascota = h.ID_Mascota
       WHERE h.ID_Cuidador = ?`;
@@ -638,6 +651,124 @@ app.get("/cuidadores/mascotasAsignadas/:idCuidador", (req, res) => {
           res.json({
               success: true,
               mensaje: "Mascotas asignadas obtenidas correctamente",
+              mascotas: result
+          });
+      }
+  });
+});
+
+
+// Endpoint para obtener todas las mascotas de un usuario que no esten ospedadadas
+app.get("/usuarios/mascotasNoHospedadas/:idUsuario", (req, res) => {
+  const idUsuario = req.params.idUsuario;
+
+  // Consulta SQL para obtener las mascotas que no están hospedadas
+  const query = `
+      SELECT ID_Mascota, Nombre, Especie, Raza, Edad
+      FROM Mascotas
+      WHERE ID_Usuario = ? AND EstaHospedado = FALSE`;
+
+  db.query(query, [idUsuario], (err, result) => {
+      if (err) {
+          console.error("Error al obtener las mascotas no hospedadas:", err);
+          res.json({
+              success: false,
+              mensaje: "Ha ocurrido un error al obtener las mascotas no hospedadas"
+          });
+      } else {
+          res.json({
+              success: true,
+              mensaje: "Mascotas no hospedadas obtenidas correctamente",
+              mascotas: result
+          });
+      }
+  });
+});
+
+
+app.delete("/mascotas/devolver", (req, res) => {
+  const { idMascota } = req.body;
+
+  // Iniciar transacción para asegurar la consistencia de los datos
+  db.beginTransaction(err => {
+      if (err) {
+          console.error("Error al iniciar la transacción:", err);
+          return res.json({
+              success: false,
+              mensaje: "Error al iniciar la transacción para devolver la mascota"
+          });
+      }
+
+      // Paso 1: Actualizar la tabla Mascotas
+      const queryMascotas = "UPDATE Mascotas SET EstaHospedado = FALSE WHERE ID_Mascota = ?";
+      db.query(queryMascotas, [idMascota], (err, result) => {
+          if (err) {
+              return db.rollback(() => {
+                  console.error("Error al actualizar Mascotas:", err);
+                  res.json({
+                      success: false,
+                      mensaje: "Error al actualizar el estado de la mascota"
+                  });
+              });
+          }
+
+          // Paso 2: Eliminar el registro de hospedaje de la tabla Hospedajes
+          const queryHospedajes = "DELETE FROM Hospedajes WHERE ID_Mascota = ?";
+          db.query(queryHospedajes, [idMascota], (err, result) => {
+              if (err) {
+                  return db.rollback(() => {
+                      console.error("Error al eliminar el hospedaje:", err);
+                      res.json({
+                          success: false,
+                          mensaje: "Error al eliminar el hospedaje de la mascota"
+                      });
+                  });
+              }
+
+              // Si todo salió bien, commit de la transacción
+              db.commit(err => {
+                  if (err) {
+                      return db.rollback(() => {
+                          console.error("Error al hacer commit de la transacción:", err);
+                          res.json({
+                              success: false,
+                              mensaje: "Error al finalizar la transacción para devolver la mascota"
+                          });
+                      });
+                  }
+
+                  res.json({
+                      success: true,
+                      mensaje: "Mascota devuelta y registro de hospedaje eliminado correctamente"
+                  });
+              });
+          });
+      });
+  });
+});
+
+
+app.get("/usuarios/mascotasHospedadas/:idUsuario", (req, res) => {
+  const idUsuario = req.params.idUsuario;
+
+  // Consulta SQL para obtener las mascotas hospedadas y su estado
+  const query = `
+      SELECT m.ID_Mascota, m.Nombre, m.Especie, m.Raza, m.Edad, h.Fecha_Inicio, h.Fecha_Fin, h.Estado
+      FROM Mascotas m
+      INNER JOIN Hospedajes h ON m.ID_Mascota = h.ID_Mascota
+      WHERE m.ID_Usuario = ?`;
+
+  db.query(query, [idUsuario], (err, result) => {
+      if (err) {
+          console.error("Error al obtener las mascotas hospedadas:", err);
+          res.json({
+              success: false,
+              mensaje: "Ha ocurrido un error al obtener las mascotas hospedadas"
+          });
+      } else {
+          res.json({
+              success: true,
+              mensaje: "Mascotas hospedadas obtenidas correctamente",
               mascotas: result
           });
       }

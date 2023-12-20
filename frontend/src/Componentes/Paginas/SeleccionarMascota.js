@@ -1,54 +1,99 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { TarjetaSeleccionMascota } from "../Tarjetas/TarjetaSeleccionMascota";
+import { TarjetaMascotaSeleccionada } from "../Tarjetas/TarjetaMascotaSeleccionada";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #d5f5e8;
+  height: 100%;
 `;
 
-const FormContainer = styled.div`
+const Title = styled.h1`
+  text-align: center;
+  margin-top: 20px;
+`;
+
+const TopContainer = styled.div`
+  display: flex;
+  justify-content: center; // Centrar los elementos en la línea
+  border-bottom: 1px solid #ccc;
+  margin-left: 40px;
+  margin-right: 40px;
+  margin-bottom: 20px;
+  height: 100%;
+`;
+
+const CardListContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
-  padding-left: 40px;
-  padding-right: 40px;
-  padding-bottom: 10px;
+  margin-left: 40px;
+  margin-right: 40px;
+  margin-bottom: 20px;
 `;
 
-const Form = styled.form`
-  background-color: #fff;
-  top-margin: 20px;
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-`;
-
-export const SeleccionarMascota = () => {
+export const SeleccionarMascota = ({ user }) => {
   const [listado, setListado] = useState([]);
+  const [asignados, setAsignados] = useState([]);
+  const [cambios, setCambios] = useState(false);
 
-  const fetchMascotas = async () => {
-    try {
-      const response = await fetch(`http://localhost:3000/mascotas/hospedadas`);
-      const data = await response.json();
-      console.log(data);
-      setListado(data);
-    } catch (error) {
-      console.error("Error al obtener mascotas:", error);
-    }
+  const hospedadosNoAsignadas = () => {
+    fetch('http://localhost:3000/mascotas/hospedadas')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setListado(data.mascotas);
+        }
+      })
+      .catch((error) => console.error('Error: ', error));
+  };
+
+  const hospedadosAsignadas = () => {
+    fetch('http://localhost:3000/cuidadores/mascotasAsignadas/' + user.ID_Usuario)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setAsignados(data.mascotas);
+          if (data.mascotas.length >= 2) {
+            setListado([]);
+          } else {
+            hospedadosNoAsignadas();
+          }
+        }
+      })
+      .catch((error) => console.error('Error: ', error));
   };
 
   useEffect(() => {
-    fetchMascotas();
-  }, []);
+    hospedadosAsignadas()
+  }, [cambios, user.ID_Usuario]);
 
-  const misMascotas = listado.mascotas;
-  console.log(misMascotas);
-
-  const mascotasComponentes =
-    listado && listado.mascotas
-      ? listado.mascotas.map((pet) => (
-          <TarjetaSeleccionMascota key={pet.ID_Mascota} nombre={pet.Nombre} />
-        ))
-      : null;
-  return <Container>{mascotasComponentes}</Container>;
+  return (
+    <Container>
+      <Title>Mascotas seleccionadas</Title>
+      <TopContainer>
+        {asignados && asignados.length === 0 ? (
+          <p>No tienes mascotas asignadas</p>
+        ) : (
+          <>
+            {asignados ? asignados.map((pet) => (
+              <TarjetaMascotaSeleccionada pet={pet} />
+            )) : null}
+          </>
+        )}
+      </TopContainer>
+      {asignados && asignados.length !== 2 ? (
+        <>
+          <Title>Mascotas sin seleccionar</Title>
+          <CardListContainer>
+            {listado ? listado.map((pet) => (
+              <TarjetaSeleccionMascota key={pet.ID_Mascota} pet={pet} cambios={cambios} setCambios={setCambios} ID_Usuario={user.ID_Usuario} />
+            )) : null}
+          </CardListContainer>
+        </>
+      ) : null}
+    </Container>
+  );
 };

@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS Mascotas (
     Contacto_Veterinario VARCHAR(100),
     Comentarios_Extra TEXT,
     ID_Usuario INT,
+    EstaHospedado BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (ID_Usuario) REFERENCES Usuarios(ID_Usuario)
 );
 
