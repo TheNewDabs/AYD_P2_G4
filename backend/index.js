@@ -485,7 +485,8 @@ app.post("/hospedajes/create", (req, res) => {
   // Aquí puedes añadir validaciones para los datos recibidos
 
   // Inserta un nuevo registro en la tabla Hospedajes
-  const query = "INSERT INTO Hospedajes (ID_Mascota, Fecha_Inicio, Fecha_Fin, Estado) VALUES (?, ?, ?, 'Pendiente')";
+  const query = `INSERT INTO Hospedajes (ID_Mascota, Fecha_Inicio, Fecha_Fin, Estado) VALUES (?, ?, ?, 'Pendiente'); 
+  UPDATE Mascotas SET EstaHospedado = TRUE WHERE ID_Mascota = ?;`;
   db.query(query, [idMascota, fechaInicio, fechaFin], (err, result) => {
     if (err) {
       console.error("Error al crear el hospedaje:", err);
@@ -650,10 +651,9 @@ app.get("/usuarios/mascotasNoHospedadas/:idUsuario", (req, res) => {
 
   // Consulta SQL para obtener las mascotas que no están hospedadas
   const query = `
-      SELECT m.ID_Mascota, m.Nombre, m.Especie, m.Raza, m.Edad
-      FROM Mascotas m
-      LEFT JOIN Hospedajes h ON m.ID_Mascota = h.ID_Mascota AND h.Estado = 'Hospedado'
-      WHERE m.ID_Usuario = ? AND h.ID_Hospedaje IS NULL`;
+      SELECT ID_Mascota, Nombre, Especie, Raza, Comportamiento
+      FROM Mascotas
+      WHERE ID_Usuario = ? AND EstaHospedado = FALSE`;
 
   db.query(query, [idUsuario], (err, result) => {
       if (err) {
@@ -669,6 +669,68 @@ app.get("/usuarios/mascotasNoHospedadas/:idUsuario", (req, res) => {
               mascotas: result
           });
       }
+  });
+});
+
+
+app.delete("/mascotas/devolver", (req, res) => {
+  const { idMascota } = req.body;
+
+  // Iniciar transacción para asegurar la consistencia de los datos
+  db.beginTransaction(err => {
+      if (err) {
+          console.error("Error al iniciar la transacción:", err);
+          return res.json({
+              success: false,
+              mensaje: "Error al iniciar la transacción para devolver la mascota"
+          });
+      }
+
+      // Paso 1: Actualizar la tabla Mascotas
+      const queryMascotas = "UPDATE Mascotas SET EstaHospedado = FALSE WHERE ID_Mascota = ?";
+      db.query(queryMascotas, [idMascota], (err, result) => {
+          if (err) {
+              return db.rollback(() => {
+                  console.error("Error al actualizar Mascotas:", err);
+                  res.json({
+                      success: false,
+                      mensaje: "Error al actualizar el estado de la mascota"
+                  });
+              });
+          }
+
+          // Paso 2: Eliminar el registro de hospedaje de la tabla Hospedajes
+          const queryHospedajes = "DELETE FROM Hospedajes WHERE ID_Mascota = ?";
+          db.query(queryHospedajes, [idMascota], (err, result) => {
+              if (err) {
+                  return db.rollback(() => {
+                      console.error("Error al eliminar el hospedaje:", err);
+                      res.json({
+                          success: false,
+                          mensaje: "Error al eliminar el hospedaje de la mascota"
+                      });
+                  });
+              }
+
+              // Si todo salió bien, commit de la transacción
+              db.commit(err => {
+                  if (err) {
+                      return db.rollback(() => {
+                          console.error("Error al hacer commit de la transacción:", err);
+                          res.json({
+                              success: false,
+                              mensaje: "Error al finalizar la transacción para devolver la mascota"
+                          });
+                      });
+                  }
+
+                  res.json({
+                      success: true,
+                      mensaje: "Mascota devuelta y registro de hospedaje eliminado correctamente"
+                  });
+              });
+          });
+      });
   });
 });
 
