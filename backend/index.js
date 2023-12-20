@@ -750,12 +750,12 @@ app.delete("/mascotas/devolver", (req, res) => {
 });
 
 
-app.get("/usuarios/:idUsuario/mascotasHospedadas", (req, res) => {
+app.get("/usuarios/mascotasHospedadas/:idUsuario", (req, res) => {
   const idUsuario = req.params.idUsuario;
 
   // Consulta SQL para obtener las mascotas hospedadas y su estado
   const query = `
-      SELECT m.ID_Mascota, m.Nombre, m.Especie, m.Raza, h.Fecha_Inicio, h.Fecha_Fin, h.Estado
+      SELECT m.ID_Mascota, m.Nombre, m.Especie, m.Raza, m.Edad, h.Fecha_Inicio, h.Fecha_Fin, h.Estado
       FROM Mascotas m
       INNER JOIN Hospedajes h ON m.ID_Mascota = h.ID_Mascota
       WHERE m.ID_Usuario = ?`;

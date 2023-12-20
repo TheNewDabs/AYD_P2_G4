@@ -76,8 +76,13 @@ const CancelButton = styled.button`
   margin-top: 5px;
 `;
 
+const Title = styled.h1`
+  text-align: center;
+`;
+
 export const DueñoHospedar = ({ user }) => {
   const [mascotas, setMascotas] = useState([]);
+  const [mascotasHospedadas, setMascotasHospedadas] = useState([]);
   const [cambios, setCambios] = useState(false);
   const [hospedarId, setHospedarId] = useState(null);
   const [startDate, setStartDate] = useState('');
@@ -90,6 +95,20 @@ export const DueñoHospedar = ({ user }) => {
       .then((data) => {
         if (data.success) {
           setMascotas(data.mascotas);
+        }
+      })
+      .catch((error) => console.error('Error fetching mascotas:', error));
+  }, [cambios, user.ID_Usuario]);
+
+  useEffect(() => {
+    // Realiza un fetch para obtener la lista de mascotas hospedadas
+
+    fetch('http://localhost:3000/usuarios/mascotasHospedadas/' + user.ID_Usuario)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          console.log(data.mascotas)
+          setMascotasHospedadas(data.mascotas);
         }
       })
       .catch((error) => console.error('Error fetching mascotas:', error));
@@ -113,14 +132,14 @@ export const DueñoHospedar = ({ user }) => {
       .then(response => response.json())
       .then(data => {
         alert(data.mensaje);
+        setHospedarId(null);
+        setStartDate('');
+        setEndDate('');
+        setCambios(!cambios);
       })
       .catch((error) => {
         alert('Error:', error);
       });
-    setHospedarId(null);
-    setStartDate('');
-    setEndDate('');
-    setCambios(!cambios);
   };
 
   const handleCancelClick = () => {
@@ -132,6 +151,7 @@ export const DueñoHospedar = ({ user }) => {
 
   return (
     <Container>
+      <Title>Mascotas para hospedar</Title>
       <CardContainer>
         {mascotas.map((mascota) => (
           <MascotaCard key={mascota.ID_Mascota}>
@@ -154,6 +174,20 @@ export const DueñoHospedar = ({ user }) => {
                 </HospedarButton>
               </>
             )}
+          </MascotaCard>
+        ))}
+      </CardContainer>
+      <Title>Mascotas hospedadas</Title>
+      <CardContainer>
+        {mascotasHospedadas.map((mascota) => (
+          <MascotaCard key={mascota.ID_Mascota}>
+            <label>{mascota.Nombre}</label>
+            <ReadOnlyInput type="text" value={`Edad: ${mascota.Edad} años`} readOnly />
+            <ReadOnlyInput type="text" value={`Especie: ${mascota.Especie}`} readOnly />
+            <ReadOnlyInput type="text" value={`Raza: ${mascota.Raza}`} readOnly />
+            <ReadOnlyInput type="text" value={`Estado: ${mascota.Estado}`} readOnly />
+            <label>Devolución</label>
+            <ReadOnlyInput type="date" value={mascota.Fecha_Fin ? mascota.Fecha_Fin.slice(0, 10) : ''} readOnly />
           </MascotaCard>
         ))}
       </CardContainer>
