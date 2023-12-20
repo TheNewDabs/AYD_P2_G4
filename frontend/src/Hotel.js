@@ -78,8 +78,8 @@ export const Hotel = () => {
             <MenuCuidador user={user} setUser={setUser}/>
             <Routes>
               <Route path="" element={<Inicio user={user} setUser={setUser}/>}/>
-              <Route path="seleccionar" element={<SeleccionarMascota/>}/>
-              <Route path="atender" element={<AtenderMascota/>}/>
+              <Route path="seleccionar" element={<SeleccionarMascota user={user}/>}/>
+              <Route path="atender" element={<AtenderMascota user={user}/>}/>
               <Route path="devolver" element={<Template/>}/>
               <Route path="reseñas" element={<Template/>}/>
               <Route path="tienda" element={<Template/>}/>

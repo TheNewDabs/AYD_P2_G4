@@ -521,12 +521,11 @@ app.post("/hospedajes/create", (req, res) => {
 
 app.get("/mascotas/hospedadas", (req, res) => {
   // Consulta SQL para obtener las mascotas hospedadas
-  // Se asume que el estado 'Pendiente' indica una mascota actualmente en el hotel pero no ha sido atendida por un cuidador
   const query = `
       SELECT m.ID_Mascota, m.Nombre, m.Especie, m.Raza, m.Edad, m.Comportamiento, m.Comentarios_Extra, m.Contacto_Veterinario, h.Fecha_Inicio, h.Fecha_Fin, h.Estado
       FROM Mascotas m
       INNER JOIN Hospedajes h ON m.ID_Mascota = h.ID_Mascota
-      WHERE h.Estado = 'Pendiente'`;
+      WHERE h.ID_Cuidador IS NULL`;
 
   db.query(query, (err, result) => {
     if (err) {
@@ -548,7 +547,6 @@ app.get("/mascotas/hospedadas", (req, res) => {
 app.put("/hospedajes/assign", (req, res) => {
   // Se reciben los parámetros necesarios
   const { idMascota, idCuidador } = req.body;
-
   // Comprobar que el cuidador no tenga ya el máximo de 2 mascotas asignadas
   const queryCuidador =
     "SELECT COUNT(*) AS Cantidad FROM Hospedajes WHERE ID_Cuidador = ?";
@@ -637,7 +635,7 @@ app.get("/cuidadores/mascotasAsignadas/:idCuidador", (req, res) => {
 
   // Consulta SQL para obtener las mascotas asignadas al cuidador
   const query = `
-      SELECT m.ID_Mascota, m.Nombre, m.Especie, m.Raza, h.Fecha_Inicio, h.Fecha_Fin, h.Estado
+      SELECT m.ID_Mascota, m.Nombre, m.Especie, m.Raza, m.Edad, m.Comportamiento, m.Comentarios_Extra, m.Contacto_Veterinario, h.Fecha_Inicio, h.Fecha_Fin, h.Estado, h.ID_Hospedaje
       FROM Mascotas m
       INNER JOIN Hospedajes h ON m.ID_Mascota = h.ID_Mascota
       WHERE h.ID_Cuidador = ?`;

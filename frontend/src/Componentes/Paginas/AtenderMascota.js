@@ -1,83 +1,70 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-
 import { TarjetaAtenderMascota } from "../Tarjetas/TarjetaAtenderMascota";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #d5f5e8;
+  height: 100%;
 `;
 
-const FormContainer = styled.div`
+const Title = styled.h1`
+  text-align: center;
+  margin-top: 20px;
+`;
+
+const TopContainer = styled.div`
+  display: flex;
+  justify-content: center; // Centrar los elementos en la línea
+  margin-left: 40px;
+  margin-right: 40px;
+  margin-bottom: 20px;
+  height: 100%;
+`;
+
+const CardListContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
-  padding-left: 40px;
-  padding-right: 40px;
-  padding-bottom: 10px;
+  margin-left: 40px;
+  margin-right: 40px;
+  margin-bottom: 20px;
 `;
 
-const Form = styled.form`
-  background-color: #fff;
-  top-margin: 20px;
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-`;
+export const AtenderMascota = ({ user }) => {
+  const [asignados, setAsignados] = useState([]);
+  const [cambios, setCambios] = useState(false);
 
-export const AtenderMascota = () => {
-
-  
-  const [lista, setLista] = useState([]);
+  const hospedadosAsignadas = () => {
+    fetch('http://localhost:3000/cuidadores/mascotasAsignadas/' + user.ID_Usuario)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setAsignados(data.mascotas);
+        }
+      })
+      .catch((error) => console.error('Error: ', error));
+  };
 
   useEffect(() => {
-    obtenerMascotas();
-    console.log("libros alquiler");
-    console.log(lista);
-  }, []); 
-  
-  const listado = []
-
-  const obtenerMascotas = () => {
-    // obtener el userId del usuario logueado en localStorage
-    const local = localStorage.MyLibrary_session;
-    const UserID = 2 //JSON.parse(local).UserID;
-
-    fetch("http://localhost:3000/cuidadores/mascotasAsignadas/" + UserID, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      }
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setLista(data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
+    hospedadosAsignadas()
+  }, [cambios, user.ID_Usuario]);
 
   return (
     <Container>
-
-    <h1>aqui la tarjeta</h1>
-    {listado.mascotas.map((pet) => (
-        <TarjetaAtenderMascota 
-          key={pet.ID_Mascota} 
-          nombre={pet.Nombre} />
-      ))}
-
-
+      <Title>Mascotas seleccionadas</Title>
+      <TopContainer>
+        {asignados && asignados.length === 0 ? (
+          <p>No tienes mascotas asignadas</p>
+        ) : (
+          <>
+            {asignados ? asignados.map((pet) => (
+              <TarjetaAtenderMascota pet={pet}/>
+            )) : null}
+          </>
+        )}
+      </TopContainer>
     </Container>
   );
 };
-
-
-/*    
-      
-      */

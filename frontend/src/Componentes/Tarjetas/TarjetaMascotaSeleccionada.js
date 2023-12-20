@@ -5,6 +5,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #d5f5e8;
+  width: 45%;
 `;
 
 const FormContainer = styled.div`
@@ -22,17 +23,7 @@ const Form = styled.form`
   border: 1px solid #ccc;
 `;
 
-const Colorbtn = styled.div`
-  display: flex;
-  flex-direction: column;
-  background-color: #44a08d;
-`;
-
-const SelectButton = styled.button`
-  color: white;
-`
-
-export const TarjetaSeleccionMascota = ({pet}) => {
+export const TarjetaMascotaSeleccionada = ({pet}) => {
   return (
     <>
       <Container>
@@ -46,9 +37,6 @@ export const TarjetaSeleccionMascota = ({pet}) => {
             <p className="tarjeta-contenido">Comportamiento: {pet.Comportamiento}</p>
             <p className="tarjeta-contenido">Contacto Veterinario: {pet.Contacto_Veterinario}</p>
             <p className="tarjeta-contenido">Comentarios Extra: {pet.Comentarios_Extra}</p>
-            <Colorbtn>
-              <SelectButton className="btn btn"> Selecion mascota </SelectButton>
-            </Colorbtn>
           </Form>
         </FormContainer>
       </Container>

@@ -8,6 +8,10 @@ const Container = styled.div`
 `;
 
 const FormContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  padding: 20px;
+  align-items: center;
   justify-content: space-around;
   padding-left: 40px;
   padding-right: 40px;
@@ -27,13 +31,44 @@ const Colorbtn = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #44a08d;
+  color: white;
+  border-radius: 4px;
 `;
 
 const SelectButton = styled.button`
+  background-color: #44a08d;
   color: white;
+  border: none;
+  cursor: pointer;
 `
 
-export const TarjetaSeleccionMascota = ({pet}) => {
+export const TarjetaSeleccionMascota = ({ pet, cambios, setCambios, ID_Usuario }) => {
+
+  const hacerCambio = () => {
+    setCambios(!cambios);
+  }
+
+  const asignarMascota = () => {
+    fetch('http://localhost:3000/hospedajes/assign', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        idMascota: pet.ID_Mascota,
+        idCuidador: ID_Usuario,
+      })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          hacerCambio();
+        }
+        alert(data.mensaje);
+      })
+      .catch((error) => console.error('Error:', error));
+  }
+
   return (
     <>
       <Container>
@@ -48,7 +83,7 @@ export const TarjetaSeleccionMascota = ({pet}) => {
             <p className="tarjeta-contenido">Contacto Veterinario: {pet.Contacto_Veterinario}</p>
             <p className="tarjeta-contenido">Comentarios Extra: {pet.Comentarios_Extra}</p>
             <Colorbtn>
-              <SelectButton className="btn btn"> Selecion mascota </SelectButton>
+              <SelectButton className="btn btn" type="button" onClick={asignarMascota}> Selecion mascota </SelectButton>
             </Colorbtn>
           </Form>
         </FormContainer>
