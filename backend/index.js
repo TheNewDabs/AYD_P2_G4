@@ -485,8 +485,7 @@ app.post("/hospedajes/create", (req, res) => {
   // Aquí puedes añadir validaciones para los datos recibidos
 
   // Inserta un nuevo registro en la tabla Hospedajes
-  const query =
-    "INSERT INTO Hospedajes (ID_Mascota, Fecha_Inicio, Fecha_Fin, Estado) VALUES (?, ?, ?, 'Pendiente')";
+  const query = "INSERT INTO Hospedajes (ID_Mascota, Fecha_Inicio, Fecha_Fin, Estado) VALUES (?, ?, ?, 'Pendiente')";
   db.query(query, [idMascota, fechaInicio, fechaFin], (err, result) => {
     if (err) {
       console.error("Error al crear el hospedaje:", err);

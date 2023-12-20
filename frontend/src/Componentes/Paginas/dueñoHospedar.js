@@ -22,8 +22,12 @@ const MascotaCard = styled.div`
   border-radius: 8px;
   margin: 10px;
   padding: 10px;
-  width: 300px;
-  background-color: #ccf9ff;
+  width: 350px;
+  background-color: #ffe4b5;
+
+  label {
+    margin-bottom: 5px;
+  }
 `;
 
 const HospedarButton = styled.button`
@@ -35,8 +39,49 @@ const HospedarButton = styled.button`
   margin-top: 10px;
 `;
 
-export const DueñoHospedar = ({user}) => {
+const ReadOnlyInput = styled.input`
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+`;
+
+const DateInput = styled.input`
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+`;
+
+const ConfirmButton = styled.button`
+  background-color: #44a08d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 5px;
+  margin-right: 5px;
+`;
+
+const CancelButton = styled.button`
+  background-color: #ff6961;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 5px;
+`;
+
+export const DueñoHospedar = ({ user }) => {
   const [mascotas, setMascotas] = useState([]);
+  const [cambios, setCambios] = useState(false);
+  const [hospedarId, setHospedarId] = useState(null);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   useEffect(() => {
     // Realiza un fetch para obtener la lista de mascotas disponibles
@@ -48,11 +93,41 @@ export const DueñoHospedar = ({user}) => {
         }
       })
       .catch((error) => console.error('Error fetching mascotas:', error));
-  }); // Se ejecuta solo una vez al montar el componente
+  }, [cambios, user.ID_Usuario]);
 
   const handleHospedarClick = (idMascota) => {
-    // Lógica para hospedar la mascota con el ID idMascota
-    console.log(`Hospedar mascota con ID ${idMascota}`);
+    setHospedarId(idMascota);
+  };
+
+  const handleConfirmClick = () => {
+    // Lógica para confirmar hospedaje con fechas startDate y endDate
+    fetch(`http://localhost:3000/hospedajes/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        idMascota: hospedarId,
+        fechaInicio: startDate,
+        fechaFin: endDate,
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.mensaje);
+      })
+      .catch((error) => {
+        alert('Error:', error);
+      });
+    setHospedarId(null);
+    setStartDate('');
+    setEndDate('');
+    setCambios(!cambios);
+  };
+
+  const handleCancelClick = () => {
+    // Cancelar el proceso y volver al estado anterior
+    setHospedarId(null);
+    setStartDate('');
+    setEndDate('');
   };
 
   return (
@@ -60,13 +135,25 @@ export const DueñoHospedar = ({user}) => {
       <CardContainer>
         {mascotas.map((mascota) => (
           <MascotaCard key={mascota.ID_Mascota}>
-            <h3>{mascota.Nombre}</h3>
-            <p>Edad: {mascota.Edad} años</p>
-            <p>Especie: {mascota.Especie}</p>
-            <p>Raza: {mascota.Raza}</p>
-            <HospedarButton onClick={() => handleHospedarClick(mascota.id)}>
-              Hospedar
-            </HospedarButton>
+            {hospedarId === mascota.ID_Mascota ? (
+              <>
+                <label>{mascota.Nombre}</label>
+                <DateInput type="date" placeholder="Fecha de inicio" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                <DateInput type="date" placeholder="Fecha de finalización" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                <ConfirmButton onClick={handleConfirmClick}>Confirmar</ConfirmButton>
+                <CancelButton onClick={handleCancelClick}>Cancelar</CancelButton>
+              </>
+            ) : (
+              <>
+                <label>{mascota.Nombre}</label>
+                <ReadOnlyInput type="text" value={`Edad: ${mascota.Edad} años`} readOnly />
+                <ReadOnlyInput type="text" value={`Especie: ${mascota.Especie}`} readOnly />
+                <ReadOnlyInput type="text" value={`Raza: ${mascota.Raza}`} readOnly />
+                <HospedarButton onClick={() => handleHospedarClick(mascota.ID_Mascota)}>
+                  Hospedar
+                </HospedarButton>
+              </>
+            )}
           </MascotaCard>
         ))}
       </CardContainer>
