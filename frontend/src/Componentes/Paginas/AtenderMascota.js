@@ -40,7 +40,7 @@ export const AtenderMascota = () => {
   const obtenerMascotas = () => {
     // obtener el userId del usuario logueado en localStorage
     const local = localStorage.MyLibrary_session;
-    const UserID = 2 //JSON.parse(local).UserID;
+    const UserID = 10 //JSON.parse(local).UserID;
 
     fetch("http://localhost:3000/cuidadores/mascotasAsignadas/" + UserID, {
       method: "GET",
@@ -55,6 +55,7 @@ export const AtenderMascota = () => {
         return response.json();
       })
       .then((data) => {
+        console.log(data)
         setLista(data);
       })
       .catch((error) => {
@@ -66,18 +67,17 @@ export const AtenderMascota = () => {
     <Container>
 
     <h1>aqui la tarjeta</h1>
-    {listado.mascotas.map((pet) => (
+    {/*
+    {lista.mascotas.map((pet) => (
         <TarjetaAtenderMascota 
           key={pet.ID_Mascota} 
           nombre={pet.Nombre} />
       ))}
-
+    */}
 
     </Container>
   );
 };
 
 
-/*    
-      
-      */
+

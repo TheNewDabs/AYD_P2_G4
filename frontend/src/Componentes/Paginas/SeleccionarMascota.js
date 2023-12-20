@@ -30,7 +30,7 @@ export const SeleccionarMascota = () => {
     try {
       const response = await fetch(`http://localhost:3000/mascotas/hospedadas`);
       const data = await response.json();
-      console.log(data);
+      //console.log(data);
       setListado(data);
     } catch (error) {
       console.error("Error al obtener mascotas:", error);

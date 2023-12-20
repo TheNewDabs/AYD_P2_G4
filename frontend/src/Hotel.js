@@ -8,7 +8,7 @@ import { Inicio } from "./Componentes/Paginas/Inicio";
 import { Template } from "./Componentes/Paginas/Template";
 import { AtenderMascota} from './Componentes/Paginas/AtenderMascota'
 import { SeleccionarMascota } from "./Componentes/Paginas/SeleccionarMascota";
-import { DueñoAgregar } from "./Componentes/Paginas/dueñoAgregar";
+import { DueñoAgregar } from "./Componentes/Paginas/DueñoAgregar";
 
 export const Hotel = () => {
 
