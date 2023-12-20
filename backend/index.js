@@ -481,13 +481,12 @@ app.post("/mascotas/register", (req, res) => {
 
 app.post("/hospedajes/create", (req, res) => {
   const { idMascota, fechaInicio, fechaFin } = req.body;
-
   // Aquí puedes añadir validaciones para los datos recibidos
 
   // Inserta un nuevo registro en la tabla Hospedajes
   const query = `INSERT INTO Hospedajes (ID_Mascota, Fecha_Inicio, Fecha_Fin, Estado) VALUES (?, ?, ?, 'Pendiente'); 
   UPDATE Mascotas SET EstaHospedado = TRUE WHERE ID_Mascota = ?;`;
-  db.query(query, [idMascota, fechaInicio, fechaFin], (err, result) => {
+  db.query(query, [idMascota, fechaInicio, fechaFin, idMascota], (err, result) => {
     if (err) {
       console.error("Error al crear el hospedaje:", err);
       res.json({
@@ -651,7 +650,7 @@ app.get("/usuarios/mascotasNoHospedadas/:idUsuario", (req, res) => {
 
   // Consulta SQL para obtener las mascotas que no están hospedadas
   const query = `
-      SELECT ID_Mascota, Nombre, Especie, Raza, Comportamiento
+      SELECT ID_Mascota, Nombre, Especie, Raza, Edad
       FROM Mascotas
       WHERE ID_Usuario = ? AND EstaHospedado = FALSE`;
 
