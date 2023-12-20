@@ -327,3 +327,6 @@ CREATE TABLE IF NOT EXISTS Perfil_Cuidador (
 **Diagrama Entidad Relacion**
 Insertar imagen
 ![](HuellitaFeliz.png)
+
+**Diagrama Casos de Uso**
+![](diagramaCasosUso.png)
