@@ -1,0 +1,35 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend para la plataforma MyLybrary",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MoralesTomas/AYD1_P1_G4.git"
+  },
+  "keywords": [
+    "AYD1",
+    "USAC"
+  ],
+  "author": "ormandyrony@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MoralesTomas/AYD1_P1_G4/issues"
+  },
+  "homepage": "https://github.com/MoralesTomas/AYD1_P1_G4#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jest": "^29.7.0",
+    "moment": "^2.29.4",
+    "mysql2": "^3.6.5",
+    "nodemailer": "^6.9.7",
+    "nodemon": "^3.0.2",
+    "supertest": "^6.3.3"
+  }
+}
