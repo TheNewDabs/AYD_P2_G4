@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS Hospedajes (
     ID_Mascota INT,
     Fecha_Inicio DATE,
     Fecha_Fin DATE,
-    Estado ENUM('Comiendo', 'Paseando', 'Bañado', 'Tomando la siesta', 'Jugando', 'Pendiente'),
+    Estado ENUM('Comiendo', 'Paseando', 'Bañado', 'Tomando la siesta', 'Jugando', 'Pendiente', 'Listo para devolver'),
     ID_Cuidador INT,
     FOREIGN KEY (ID_Mascota) REFERENCES Mascotas(ID_Mascota),
     FOREIGN KEY (ID_Cuidador) REFERENCES Usuarios(ID_Usuario)
