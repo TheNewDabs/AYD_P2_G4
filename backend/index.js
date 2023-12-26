@@ -859,6 +859,108 @@ app.get("/reseñas/all", (req, res) => {
 });
 
 
+app.post("/productos/add", (req, res) => {
+  const { nombre, descripcion, precio, cantidad, idCuidador, imagenUrl } = req.body;
+  // Inserta un nuevo producto en la tabla Productos
+  const query = "INSERT INTO Productos (Nombre, Descripcion, Precio, Cantidad, ID_Cuidador, Imagen_URL) VALUES (?, ?, ?, ?, ?, ?)";
+  db.query(
+      query,
+      [nombre, descripcion, precio, cantidad, idCuidador, imagenUrl],
+      (err, result) => {
+          if (err) {
+              console.error("Error al agregar el producto:", err);
+              res.json({
+                  success: false,
+                  mensaje: "Ha ocurrido un error al agregar el producto"
+              });
+          } else {
+              res.json({
+                  success: true,
+                  mensaje: "Producto agregado correctamente",
+                  idProducto: result.insertId
+              });
+          }
+      }
+  );
+});
+
+app.get("/productos/all", (req, res) => {
+  // Consulta SQL para obtener todos los productos
+  const query = `
+      SELECT ID_Producto, Nombre, Descripcion, Precio, Cantidad, Imagen_URL
+      FROM Productos`;
+
+  db.query(query, (err, result) => {
+      if (err) {
+          console.error("Error al obtener los productos:", err);
+          res.json({
+              success: false,
+              mensaje: "Ha ocurrido un error al obtener los productos"
+          });
+      } else {
+          res.json({
+              success: true,
+              mensaje: "Productos obtenidos correctamente",
+              productos: result
+          });
+      }
+  });
+});
+
+app.put("/productos/update", (req, res) => {
+  const { idProducto, nuevoPrecio, nuevaCantidad } = req.body;
+
+  // Aquí podrías añadir validaciones para los datos recibidos
+
+  // Actualiza el precio y la cantidad del producto
+  const query = "UPDATE Productos SET Precio = ?, Cantidad = ? WHERE ID_Producto = ?";
+  db.query(
+      query,
+      [nuevoPrecio, nuevaCantidad, idProducto],
+      (err, result) => {
+          if (err) {
+              console.error("Error al actualizar el producto:", err);
+              res.json({
+                  success: false,
+                  mensaje: "Ha ocurrido un error al actualizar el producto"
+              });
+          } else {
+              res.json({
+                  success: true,
+                  mensaje: "Producto actualizado correctamente"
+              });
+          }
+      }
+  );
+});
+
+app.delete("/productos/delete", (req, res) => {
+  const { idProducto } = req.body;
+
+  // Aquí podrías añadir validaciones, como verificar que el producto exista
+
+  // Elimina el producto
+  const query = "DELETE FROM Productos WHERE ID_Producto = ?";
+  db.query(
+      query,
+      [idProducto],
+      (err, result) => {
+          if (err) {
+              console.error("Error al eliminar el producto:", err);
+              res.json({
+                  success: false,
+                  mensaje: "Ha ocurrido un error al eliminar el producto"
+              });
+          } else {
+              res.json({
+                  success: true,
+                  mensaje: "Producto eliminado correctamente"
+              });
+          }
+      }
+  );
+});
+
 /** Inicia el servidor y hace que escuche en el puerto especificado */
 app.listen(port, host, () => {
   console.log(`La API está escuchando en http://${host}:${port}`);
