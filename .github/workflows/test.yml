@@ -3,7 +3,7 @@ name: test_ci
 on:
   push:
     branches:
-      - master
+      - develop
 
 jobs:
 
