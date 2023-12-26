@@ -15,7 +15,7 @@ jobs:
             - name: Listar archivos backend
               run: cd backend/ && ls -l
       
-        test-unitarios-back:
+        instalar-dependencias-back:
           runs-on: ubuntu-22.04
           steps:
             - uses: actions/checkout@v2
