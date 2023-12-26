@@ -802,6 +802,62 @@ app.post("/reseñas/add", (req, res) => {
   );
 });
 
+app.delete("/reseñas/delete", (req, res) => {
+  const { idReseña, idCuidador } = req.body;
+
+  // Aquí podrías añadir validaciones, como verificar que el cuidador tenga permisos para eliminar la reseña
+
+  // Elimina la reseña de la tabla Reseñas
+  const query = "DELETE FROM Reseñas WHERE ID_Reseña = ? AND ID_Usuario = ?";
+  db.query(
+      query,
+      [idReseña, idCuidador],
+      (err, result) => {
+          if (err) {
+              console.error("Error al eliminar la reseña:", err);
+              res.json({
+                  success: false,
+                  mensaje: "Ha ocurrido un error al eliminar la reseña"
+              });
+          } else if (result.affectedRows === 0) {
+              res.json({
+                  success: false,
+                  mensaje: "Reseña no encontrada o ya eliminada"
+              });
+          } else {
+              res.json({
+                  success: true,
+                  mensaje: "Reseña eliminada correctamente"
+              });
+          }
+      }
+  );
+});
+
+app.get("/reseñas/all", (req, res) => {
+  // Consulta SQL para obtener todas las reseñas
+  const query = `
+      SELECT r.ID_Reseña, r.Comentario, r.Calificación, r.Fecha, u.Nombre, u.Apellido
+      FROM Reseñas r
+      JOIN Usuarios u ON r.ID_Usuario = u.ID_Usuario`;
+
+  db.query(query, (err, result) => {
+      if (err) {
+          console.error("Error al obtener las reseñas:", err);
+          res.json({
+              success: false,
+              mensaje: "Ha ocurrido un error al obtener las reseñas"
+          });
+      } else {
+          res.json({
+              success: true,
+              mensaje: "Reseñas obtenidas correctamente",
+              reseñas: result
+          });
+      }
+  });
+});
+
 
 /** Inicia el servidor y hace que escuche en el puerto especificado */
 app.listen(port, host, () => {
