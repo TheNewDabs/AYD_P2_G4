@@ -68,3 +68,14 @@ CREATE TABLE IF NOT EXISTS Perfil_Cuidador (
     Calificaciones DECIMAL(3,2),
     FOREIGN KEY (ID_Usuario) REFERENCES Usuarios(ID_Usuario)
 );
+
+-- Crear tabla para la Tienda
+CREATE TABLE IF NOT EXISTS Productos (
+    ID_Producto INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(100),
+    Descripcion TEXT,
+    Precio DECIMAL(10, 2),
+    Cantidad INT,
+    ID_Cuidador INT,
+    FOREIGN KEY (ID_Cuidador) REFERENCES Usuarios(ID_Usuario)
+);

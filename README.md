@@ -130,6 +130,82 @@
 | Flujo | 1. Elegir mascota del perfil. 2. Seleccionar fechas de hospedaje. 3. Confirmar reserva. |
 | Flujo alterno | No aplica. |
 
+## Casos de uso para la fase 2
+
+### 1. Publicar y Gestionar Reseñas
+
+| Nombre | Publicar y Gestionar Reseñas |
+| --- | --- |
+| Tipo | Primario |
+| Roles | Cliente, Cuidador |
+| Descripción | Permite a los clientes y cuidadores publicar reseñas sobre los servicios y gestionarlas. |
+
+### 2. Gestionar Productos en la Tienda
+
+| Nombre | Gestionar Productos en la Tienda |
+| --- | --- |
+| Tipo | Primario |
+| Roles | Cuidador (vendedor), Cliente (comprador) |
+| Descripción | Los cuidadores pueden añadir, actualizar o eliminar productos de la tienda. Los clientes pueden ver los productos disponibles. |
+
+### 3. Devolución de Mascota
+
+| Nombre | Devolución de Mascota |
+| --- | --- |
+| Tipo | Primario |
+| Roles | Cuidador |
+| Descripción | Permite a los cuidadores devolver una mascota a su dueño y actualizar el estado del hospedaje. |
+
+### 4. Recoger Mascota
+
+| Nombre | Recoger Mascota |
+| --- | --- |
+| Tipo | Primario |
+| Roles | Cliente |
+| Descripción | Permite a los clientes marcar sus mascotas como recogidas después del hospedaje. |
+
+### Casos de Uso Expandidos
+
+### Publicar Reseña
+
+| Nombre | Publicar Reseña |
+| --- | --- |
+| Tipo | Primario |
+| Roles | Cliente, Cuidador |
+| Descripción | Los usuarios pueden publicar reseñas sobre un servicio específico. Los cuidadores pueden responder o eliminar reseñas inapropiadas. |
+| Flujo | 1. El usuario selecciona un servicio para revisar. 2. El usuario escribe y envía una reseña. |
+| Flujo Alterno | Si el usuario intenta publicar contenido inapropiado, el sistema rechaza la reseña. |
+
+### Añadir Producto a la Tienda
+
+| Nombre | Añadir Producto a la Tienda |
+| --- | --- |
+| Tipo | Primario |
+| Roles | Cuidador |
+| Descripción | Los cuidadores pueden añadir productos a la tienda, incluyendo detalles como nombre, descripción, precio y cantidad. |
+| Flujo | 1. El cuidador accede a la sección de gestión de la tienda. 2. El cuidador introduce la información del producto y lo publica. |
+| Flujo Alterno | Si falta información del producto, el sistema solicita que se complete antes de la publicación. |
+
+### Finalizar Hospedaje de Mascota
+
+| Nombre | Finalizar Hospedaje de Mascota |
+| --- | --- |
+| Tipo | Primario |
+| Roles | Cuidador |
+| Descripción | El cuidador finaliza el hospedaje de una mascota, actualizando su estado en el sistema y notificando al dueño. |
+| Flujo | 1. El cuidador selecciona la mascota a devolver. 2. El cuidador marca el hospedaje como finalizado. |
+| Flujo Alterno | Si el hospedaje no puede finalizarse, el sistema muestra un mensaje de error. |
+
+### Confirmar Recogida de Mascota
+
+| Nombre | Confirmar Recogida de Mascota |
+| --- | --- |
+| Tipo | Primario |
+| Roles | Cliente |
+| Descripción | El cliente confirma la recogida de su mascota, cambiando su estado en el sistema. |
+| Flujo | 1. El cliente selecciona la mascota a recoger. 2. El cliente confirma la recogida en el sistema. |
+| Flujo Alterno | Si hay un problema con la recogida, el sistema muestra un mensaje de error. |
+
 ### Historias de Usuario para la Fase 1
 
 ### Historias de Usuario para Registro e Inicio de Sesión

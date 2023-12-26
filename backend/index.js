@@ -775,6 +775,33 @@ app.get("/usuarios/mascotasHospedadas/:idUsuario", (req, res) => {
   });
 });
 
+// Agregar una nueva reseña del cliente
+app.post("/reseñas/add", (req, res) => {
+  const { idUsuario, comentario, calificacion } = req.body;
+
+  // Inserta una nueva reseña en la tabla Reseñas
+  const query = "INSERT INTO Reseñas (ID_Usuario, Comentario, Calificación) VALUES (?, ?, ?)";
+  db.query(
+      query,
+      [idUsuario, comentario, calificacion],
+      (err, result) => {
+          if (err) {
+              console.error("Error al agregar la reseña:", err);
+              res.json({
+                  success: false,
+                  mensaje: "Ha ocurrido un error al agregar la reseña"
+              });
+          } else {
+              res.json({
+                  success: true,
+                  mensaje: "Reseña agregada correctamente",
+                  idReseña: result.insertId
+              });
+          }
+      }
+  );
+});
+
 
 /** Inicia el servidor y hace que escuche en el puerto especificado */
 app.listen(port, host, () => {
