@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { TarjetaSeleccionMascota } from "../Tarjetas/TarjetaSeleccionMascota";
-import { TarjetaMascotaSeleccionada } from "../Tarjetas/TarjetaMascotaSeleccionada";
+import { TarjetaAtenderMascota } from "../Tarjetas/TarjetaAtenderMascota";
 
 const Container = styled.div`
   display: flex;
@@ -79,7 +79,7 @@ export const SeleccionarMascota = ({ user }) => {
         ) : (
           <>
             {asignados ? asignados.map((pet) => (
-              <TarjetaMascotaSeleccionada pet={pet} />
+              <TarjetaAtenderMascota pet={pet}/>
             )) : null}
           </>
         )}
