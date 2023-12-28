@@ -35,7 +35,7 @@ const DeleteButton = styled.button`
   cursor: pointer;
 `;
 
-export const ReseñasCuidador = ({ user }) => {
+export const ReseñasCuidador = () => {
   const [reseñas, setReseñas] = useState([]);
   const [cambios, setCambios] = useState(false);
 

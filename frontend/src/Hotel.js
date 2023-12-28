@@ -11,6 +11,8 @@ import { DueñoAgregar } from "./Componentes/Paginas/dueñoAgregar";
 import { DueñoHospedar } from "./Componentes/Paginas/dueñoMascotas";
 import { ReseñasUsuarios } from "./Componentes/Paginas/reseñasUsuarios";
 import { ReseñasCuidador } from "./Componentes/Paginas/reseñasCuidador";
+import { TiendaCuidador } from "./Componentes/Paginas/tiendaCuidador";
+import { TiendaCliente } from "./Componentes/Paginas/tiendaCliente";
 
 export const Hotel = () => {
 
@@ -68,7 +70,7 @@ export const Hotel = () => {
               <Route path="agregar" element={<DueñoAgregar user={user}/>}/>
               <Route path="mascotas" element={<DueñoHospedar user={user}/>}/>
               <Route path="reseñar" element={<ReseñasUsuarios user={user}/>}/>
-              <Route path="tienda" element={<Template/>}/>
+              <Route path="tienda" element={<TiendaCliente/>}/>
               <Route path="*" element={<Navigate to="/dueño"/>}/>
             </Routes>
           </>
@@ -79,8 +81,8 @@ export const Hotel = () => {
             <Routes>
               <Route path="" element={<Inicio user={user} setUser={setUser}/>}/>
               <Route path="mascotas" element={<SeleccionarMascota user={user}/>}/>
-              <Route path="reseñas" element={<ReseñasCuidador user={user}/>}/>
-              <Route path="tienda" element={<Template/>}/>
+              <Route path="reseñas" element={<ReseñasCuidador/>}/>
+              <Route path="tienda" element={<TiendaCuidador user={user}/>}/>
               <Route path="*" element={<Navigate to="/cuidador"/>}/>
             </Routes>
           </>
