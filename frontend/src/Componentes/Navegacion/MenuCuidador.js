@@ -111,9 +111,7 @@ export const MenuCuidador = ({user, setUser}) => {
           <img src="/images/Nombre.png" alt="Botón de imagen izquierda" height="50px" />
         </NavLink>
         <NavLinks $collapsed={collapsed}>
-          <StyledNavLink to="/cuidador/seleccionar" selected={selectedLink === 'agregar'} onClick={() => handleLinkClick('agregar')}> Seleccionar Mascota </StyledNavLink>
-          <StyledNavLink to="/cuidador/atender" selected={selectedLink === 'hospedar'} onClick={() => handleLinkClick('hospedar')} > Atender </StyledNavLink>
-          <StyledNavLink to="/cuidador/devolver" selected={selectedLink === 'resenar'} onClick={() => handleLinkClick('resenar')} > Devolver </StyledNavLink>
+          <StyledNavLink to="/cuidador/mascotas" selected={selectedLink === 'mascotas'} onClick={() => handleLinkClick('mascotas')}> Mascotas </StyledNavLink>
           <StyledNavLink to="/cuidador/reseñas" selected={selectedLink === 'recoger'} onClick={() => handleLinkClick('recoger')} > Ver Reseñas </StyledNavLink> 
           <StyledNavLink to="/cuidador/tienda" selected={selectedLink === 'tienda'} onClick={() => handleLinkClick('tienda')} > Tienda </StyledNavLink>
           <StyledNavLink to="/" selected={selectedLink === 'cerrar-sesion'} onClick={() => handleLinkClick('cerrar-sesion')} > Cerrar Sesión </StyledNavLink>

@@ -90,7 +90,7 @@ export const TarjetaAtenderMascota = ({ pet }) => {
               <option value="Bañado">Bañado</option>
               <option value="Tomando la siesta">Tomando la siesta</option>
               <option value="Jugando">Jugando</option>
-              <option value="Listo para entregar">Listo para entregar</option>
+              <option value="Listo para devolver">Listo para devolver</option>
             </Select>
             <Colorbtn>
               <GuardarButton type="button" onClick={handleGuardarClick}>Guardar</GuardarButton>

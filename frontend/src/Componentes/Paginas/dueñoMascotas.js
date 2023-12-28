@@ -30,13 +30,14 @@ const MascotaCard = styled.div`
   }
 `;
 
-const HospedarButton = styled.button`
+const MascotaButton = styled.button`
   background-color: #44a08d;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   margin-top: 10px;
+  width: 100%;
 `;
 
 const ReadOnlyInput = styled.input`
@@ -118,7 +119,7 @@ export const DueñoHospedar = ({ user }) => {
     setHospedarId(idMascota);
   };
 
-  const handleConfirmClick = () => {
+  const handleHospedar = () => {
     // Lógica para confirmar hospedaje con fechas startDate y endDate
     fetch(`http://localhost:3000/hospedajes/create`, {
       method: 'POST',
@@ -142,6 +143,25 @@ export const DueñoHospedar = ({ user }) => {
       });
   };
 
+  const handleRecoger = (idMascota) => {
+    // Lógica para confirmar recogida de mascota
+    fetch(`http://localhost:3000/mascotas/devolver`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        idMascota: idMascota,
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.mensaje);
+        setCambios(!cambios);
+      })
+      .catch((error) => {
+        alert('Error:', error);
+      });
+  }
+
   const handleCancelClick = () => {
     // Cancelar el proceso y volver al estado anterior
     setHospedarId(null);
@@ -160,7 +180,7 @@ export const DueñoHospedar = ({ user }) => {
                 <label>{mascota.Nombre}</label>
                 <DateInput type="date" placeholder="Fecha de inicio" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                 <DateInput type="date" placeholder="Fecha de finalización" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-                <ConfirmButton onClick={handleConfirmClick}>Confirmar</ConfirmButton>
+                <ConfirmButton onClick={handleHospedar}>Confirmar</ConfirmButton>
                 <CancelButton onClick={handleCancelClick}>Cancelar</CancelButton>
               </>
             ) : (
@@ -169,9 +189,9 @@ export const DueñoHospedar = ({ user }) => {
                 <ReadOnlyInput type="text" value={`Edad: ${mascota.Edad} años`} readOnly />
                 <ReadOnlyInput type="text" value={`Especie: ${mascota.Especie}`} readOnly />
                 <ReadOnlyInput type="text" value={`Raza: ${mascota.Raza}`} readOnly />
-                <HospedarButton onClick={() => handleHospedarClick(mascota.ID_Mascota)}>
+                <MascotaButton onClick={() => handleHospedarClick(mascota.ID_Mascota)}>
                   Hospedar
-                </HospedarButton>
+                </MascotaButton>
               </>
             )}
           </MascotaCard>
@@ -187,7 +207,11 @@ export const DueñoHospedar = ({ user }) => {
             <ReadOnlyInput type="text" value={`Raza: ${mascota.Raza}`} readOnly />
             <ReadOnlyInput type="text" value={`Estado: ${mascota.Estado}`} readOnly />
             <label>Devolución</label>
-            <ReadOnlyInput type="date" value={mascota.Fecha_Fin ? mascota.Fecha_Fin.slice(0, 10) : ''} readOnly />
+            {mascota.Estado === "Listo para devolver" ? (
+              <MascotaButton onClick={() => handleRecoger(mascota.ID_Mascota)}> Recoger </MascotaButton>
+            ) : (
+              <ReadOnlyInput type="date" value={mascota.Fecha_Fin ? mascota.Fecha_Fin.slice(0, 10) : ''} readOnly />
+            )}
           </MascotaCard>
         ))}
       </CardContainer>

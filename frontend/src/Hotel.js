@@ -6,10 +6,11 @@ import { MenuCuidador } from "./Componentes/Navegacion/MenuCuidador";
 import { Login } from "./Componentes/Paginas/login";
 import { Inicio } from "./Componentes/Paginas/Inicio";
 import { Template } from "./Componentes/Paginas/Template";
-import { AtenderMascota} from './Componentes/Paginas/AtenderMascota'
 import { SeleccionarMascota } from "./Componentes/Paginas/SeleccionarMascota";
 import { DueñoAgregar } from "./Componentes/Paginas/dueñoAgregar";
-import { DueñoHospedar } from "./Componentes/Paginas/dueñoHospedar";
+import { DueñoHospedar } from "./Componentes/Paginas/dueñoMascotas";
+import { ReseñasUsuarios } from "./Componentes/Paginas/reseñasUsuarios";
+import { ReseñasCuidador } from "./Componentes/Paginas/reseñasCuidador";
 
 export const Hotel = () => {
 
@@ -65,9 +66,8 @@ export const Hotel = () => {
             <Routes>
               <Route path="" element={<Inicio user={user} setUser={setUser}/>}/>
               <Route path="agregar" element={<DueñoAgregar user={user}/>}/>
-              <Route path="hospedar" element={<DueñoHospedar user={user}/>}/>
-              <Route path="reseñar" element={<Template/>}/>
-              <Route path="recoger" element={<Template/>}/>
+              <Route path="mascotas" element={<DueñoHospedar user={user}/>}/>
+              <Route path="reseñar" element={<ReseñasUsuarios user={user}/>}/>
               <Route path="tienda" element={<Template/>}/>
               <Route path="*" element={<Navigate to="/dueño"/>}/>
             </Routes>
@@ -78,10 +78,8 @@ export const Hotel = () => {
             <MenuCuidador user={user} setUser={setUser}/>
             <Routes>
               <Route path="" element={<Inicio user={user} setUser={setUser}/>}/>
-              <Route path="seleccionar" element={<SeleccionarMascota user={user}/>}/>
-              <Route path="atender" element={<AtenderMascota user={user}/>}/>
-              <Route path="devolver" element={<Template/>}/>
-              <Route path="reseñas" element={<Template/>}/>
+              <Route path="mascotas" element={<SeleccionarMascota user={user}/>}/>
+              <Route path="reseñas" element={<ReseñasCuidador user={user}/>}/>
               <Route path="tienda" element={<Template/>}/>
               <Route path="*" element={<Navigate to="/cuidador"/>}/>
             </Routes>

@@ -739,7 +739,7 @@ app.delete("/mascotas/devolver", (req, res) => {
 
                   res.json({
                       success: true,
-                      mensaje: "Mascota devuelta y registro de hospedaje eliminado correctamente"
+                      mensaje: "Mascota devuelta exitosamente"
                   });
               });
           });
@@ -776,9 +776,8 @@ app.get("/usuarios/mascotasHospedadas/:idUsuario", (req, res) => {
 });
 
 // Agregar una nueva reseña del cliente
-app.post("/reseñas/add", (req, res) => {
+app.post("/resenas/add", (req, res) => {
   const { idUsuario, comentario, calificacion } = req.body;
-
   // Inserta una nueva reseña en la tabla Reseñas
   const query = "INSERT INTO Reseñas (ID_Usuario, Comentario, Calificación) VALUES (?, ?, ?)";
   db.query(
@@ -802,16 +801,16 @@ app.post("/reseñas/add", (req, res) => {
   );
 });
 
-app.delete("/reseñas/delete", (req, res) => {
-  const { idReseña, idCuidador } = req.body;
+app.delete("/resenas/delete", (req, res) => {
+  const { idReseña } = req.body;
 
   // Aquí podrías añadir validaciones, como verificar que el cuidador tenga permisos para eliminar la reseña
 
   // Elimina la reseña de la tabla Reseñas
-  const query = "DELETE FROM Reseñas WHERE ID_Reseña = ? AND ID_Usuario = ?";
+  const query = "DELETE FROM Reseñas WHERE ID_Reseña = ?";
   db.query(
       query,
-      [idReseña, idCuidador],
+      [idReseña],
       (err, result) => {
           if (err) {
               console.error("Error al eliminar la reseña:", err);
@@ -834,10 +833,10 @@ app.delete("/reseñas/delete", (req, res) => {
   );
 });
 
-app.get("/reseñas/all", (req, res) => {
+app.get("/resenas/all", (req, res) => {
   // Consulta SQL para obtener todas las reseñas
   const query = `
-      SELECT r.ID_Reseña, r.Comentario, r.Calificación, r.Fecha, u.Nombre, u.Apellido
+      SELECT r.ID_Reseña, r.Comentario, r.Calificación, r.Fecha, u.ID_Usuario, u.Nombre, u.Apellido
       FROM Reseñas r
       JOIN Usuarios u ON r.ID_Usuario = u.ID_Usuario`;
 
