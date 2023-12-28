@@ -111,9 +111,8 @@ export const MenuDueño = ({user, setUser}) => {
         </NavLink>
         <NavLinks $collapsed={collapsed}>
           <StyledNavLink to="/dueño/agregar" selected={selectedLink === 'agregar'} onClick={() => handleLinkClick('agregar')}> Agregar Mascota </StyledNavLink>
-          <StyledNavLink to="/dueño/hospedar" selected={selectedLink === 'hospedar'} onClick={() => handleLinkClick('hospedar')} > Hospedar </StyledNavLink>
+          <StyledNavLink to="/dueño/mascotas" selected={selectedLink === 'mascotas'} onClick={() => handleLinkClick('mascotas')} > Mis Mascotas </StyledNavLink>
           <StyledNavLink to="/dueño/reseñar" selected={selectedLink === 'resenar'} onClick={() => handleLinkClick('resenar')} > Reseñar </StyledNavLink>
-          <StyledNavLink to="/dueño/recoger" selected={selectedLink === 'recoger'} onClick={() => handleLinkClick('recoger')} > Rececoger </StyledNavLink> 
           <StyledNavLink to="/dueño/tienda" selected={selectedLink === 'tienda'} onClick={() => handleLinkClick('tienda')} > Tienda </StyledNavLink>
           <StyledNavLink to="/" selected={selectedLink === 'cerrar-sesion'} onClick={() => handleLinkClick('cerrar-sesion')} > Cerrar Sesión </StyledNavLink>
         </NavLinks>
