@@ -38,6 +38,7 @@ const ProductImage = styled.div`
 `;
 
 const ProductInfo = styled.div`
+  padding-left: 10px;
   width: 80%;
 `;
 
